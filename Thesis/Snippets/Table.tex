@@ -1,0 +1,17 @@
+\documentclass[11pt, a4paper, BCOR=10mm, ngerman, oneside]{scrbook}
+\usepackage{slashbox}
+
+\begin{document}
+\begin{center}
+\begin{tabular}{c | c |c|c}
+\backslashbox{location}{level} & 0 & 1 & 2\\
+\hline
+$\ell_0$ & $true$ & $true$ & $true$ \\
+$\ell_1$ & $false$ & $true$ & $true$ \\
+$\ell_2$ & $false \land x \neq 1$ & $true \land x \neq 1$ & $true$ \\
+$\ell_3$ & $false$ & $true$ & $true$ \\
+
+\end{tabular}
+\end{center}
+
+\end{document}
