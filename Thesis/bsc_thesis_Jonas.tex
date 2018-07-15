@@ -15,12 +15,12 @@
 \usepackage{pdflscape}
 \usepackage{array}
 \usepackage{caption}
+\usepackage{tkz-euclide}
 
 
 \usepackage{tikz}
-\usetikzlibrary{positioning,shapes.geometric, arrows,automata}
+\usetikzlibrary{positioning,shapes.geometric, arrows,automata, decorations.pathreplacing}
 \usepackage{pgf}
-
 
 \usepackage[english]{babel}
 \hypersetup{
@@ -612,14 +612,13 @@ The algorithm terminates returning that the property always holds and $(\bar x_1
 
 \section{Possible Improvements}
 The most time consuming part of the algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small:
-\begin{itemize}
 
-\item \textsl{Generalization of States} \\
+\subsection{Generalization of States}
 Blocking one state at a time is ineffective.  \\
 When blocking a state $s$ do not add $\bar s$ but try to find and add a cube $c \subseteq \bar s$. \\
 Most modern SAT-solver not only return unsatisfiable but also a reason for it, either by an UNSAT-core or through a final conflict-clause. Both of them deliver information about which clauses were actually used in the proof. To find a $c$ just remove unused clauses of $s$.
 
-\item \textsl{Ternary Simulation} \\
+\subsection{Ternary Simulation}
 To reduce proof-obligations it is possible to eliminate not needed state variables by checking a satisfying assignment using ternary simulation. \\
 Ternary logic extends the binary logic by introducing a new valuation: $X$, called unknown, and new rules:
 \begin{align*}
@@ -651,8 +650,6 @@ Now set $x_3 = X$: \\
 \underbrace{x_1 \land \bar x_2 \land X}_{q} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T}
 \end{equation*}
 Because there is no clause being unknown, $x_3$ can be removed from the proof-obligation. We get the reduced proof-obligation$(x_1 \land \bar x_2, 1)$
-
-\end{itemize}
 
 \pagebreak
 
@@ -1118,6 +1115,10 @@ As there are no proof-obligations left, we continue with the second propagation-
 $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ & $true$ \\
+ \multicolumn{1}{c}{} &  \multicolumn{1}{c}{} & \multicolumn{2}{c}{\upbracefill} \\[-1ex]
+ \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global fixpoint$}\\
+
+
 
 \end{tabular}
 \end{center}
@@ -1128,14 +1129,13 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 
 \section{Possible Improvements}
 
-As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \\
+As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
 \textsl{Ternary Simulation} cannot be used on first-order formulas making it impossible to use it to reduce lifted proof-obligations. \\ \\
 Different generalization techniques are possible:
 
-\begin{itemize}
 
-\item \textsl{Syntactical Analysis} \\
+\subsection{Syntactical Analysis}
 Given a cube $c$ remove $a \subseteq c$, if no variable of $a$ is assigned in $T$ and
 \begin{itemize}
 \item[1.] $a$ is already contained in a frame, or
@@ -1143,25 +1143,23 @@ Given a cube $c$ remove $a \subseteq c$, if no variable of $a$ is assigned in $T
 \end{itemize} 
 
 
-\item \textsl{Weakest Precondition} \\
+\subsection{Weakest Precondition}
 The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating multiple proof-obligations for each individual predecessor state, the weakest precondition covers all of them in a single one. \\ \\
 
 
-\item \textsl{Using the Disjunctive Normal Form} \\
+\subsection{the Disjunctive Normal Form}
 After transforming the weakest precondition into its disjunctive normal form, each cube can be considered as a separate smaller proof-obligation, saving time on larger formulas.\\ \\
 
-\item \textsl{Using Interpolation} \\
+\subsection{Using Interpolation}
 \textbf{TODO}
 We are using interpolation on frames and pos not on traces.
-\end{itemize}
 
 \pagebreak
 
 
 \chapter{Implementation in Ultimate}
-\section{Ultimate}
+\section{Introduction Ultimate}
 Ultimate program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
-
 \begin{itemize}
 \item Source plugins define a file-to-model transformation
 
@@ -1177,6 +1175,93 @@ Ultimate program analysis framework, based on \textsl{plugins} that can be execu
 
 \section{Implementation}
 To implement PDR in Ultimate we chose to implement a new library plugin \textsl{Library-PDR}, that is used in the generator plugin \textsl{traceabstraction}.
+
+\section{Improvements}
+\subsection{Caching of Proof-Obligation Queue}
+Because of the backwards-search nature of PDR, we always start with the initial proof-obligation and making our way back to the latest blocked proof-obligation iteratively. Most of the proof-obligations that are generated have already been seen. For example, let i be the current level, we have seen and blocked the initial proof-obligation i times, let there be a satisfying assignment of the initial proof-obligation meaning we have a follow up proof-obligation on level i-1, which we have also seen i-1 times. \\
+Our idea was to cache that proof-obligation queue and always start a new level not with the initial proof-obligation but with the newest generated one, so that we save the whole chain of the previous obligations as we always end up at the newest one. For that we introduced a global level and changed the levels of each proof-obligation to be subtracted from the global level, with that every proof-obligation is at its corresponding level, for example, the initial proof-obligation has its local level 0, so that global level - 0 = global level, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that global level - 1 = global level - 1, meaning that this proof-obligation comes immediately after the initial one. \\
+Something that cannot be saved is the blocking of the previous proof-obligations, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ \\
+
+\textbf{ToDo Graphic}
+
+\begin{figure}[H]
+\begin{tikzpicture} [decoration={brace,mirror,amplitude=7}]
+
+% horizontal axis
+\draw[-] (0,0) -- (\textwidth,0) node[] {};
+
+
+%1.
+\filldraw (0,\textwidth/2) circle (2pt) node[align=center,   right] {A};
+
+%connection 1. and 2.
+\draw [thick, dotted, ->]
+(0,\textwidth/2) --(\textwidth/6 - 1mm,\textwidth/3 + 1mm);
+
+%2.
+\filldraw (\textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right] {B};
+
+%connection 2. and 3.
+\draw [thick, dotted, ->]
+(\textwidth/6,\textwidth/3) --(\textwidth/3 - 1mm,\textwidth/6 + 1mm);
+
+%3.
+\filldraw (\textwidth/3,\textwidth/6) circle (2pt) node[align=center,   right] {C};
+
+%connection 3. and 4.
+\draw [thick, dotted, ->]
+(\textwidth/3,\textwidth/6) --(\textwidth/2 - 1mm,0 + 1mm);
+
+%4.
+\filldraw (\textwidth/2,0) circle (2pt) node[align=center,   below] {D};
+
+%4 and 3'
+\draw [->]
+(\textwidth/2,0 ) -- (\textwidth - \textwidth/3 - 1mm,\textwidth/6 - 1mm);
+
+%3.'
+\filldraw (\textwidth - \textwidth/3,\textwidth/6) circle (2pt) node[align=center,   right] {C'};
+
+
+%3' and 2'
+\draw [->]
+(\textwidth - \textwidth/3, \textwidth/6 ) -- (\textwidth - \textwidth/6 - 1mm,\textwidth/3 - 1mm);
+
+
+%2.'
+\filldraw (\textwidth - \textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right] {B'};
+
+
+%connection 2.' and 1.'
+\draw [->]
+(\textwidth - \textwidth/6,\textwidth/3) -- (\textwidth - 1mm,\textwidth/2 - 1mm);
+
+
+%1.'
+\filldraw (\textwidth,\textwidth/2) circle (2pt) node[align=center,   right] {A'};
+
+
+% ranges
+%\draw	(1,3.5) node{{\scriptsize Constant flux}};
+%		(4,3.5) node{{\scriptsize Field weakening}};
+
+\draw[thick, dotted] (\textwidth/2,0) -- (\textwidth/2,\textwidth/2) node[] {};
+
+\draw [decorate] (0, -1mm) -- node[below=3mm, align=center]{This chain of obligations \\ is always the same on each new level}(\textwidth/2 - 2mm, -1mm);
+
+\end{tikzpicture}
+\end{figure}
+ 
+
+\subsection{Ignoring Already Blocked Proof-Obligations}
+Besides changing the way the levels work in proof-obligations, we expanded them with a list of already seen and blocked queries to the SMT-solver. With that memoization in place, before we consider a new call to the SMT-solver we first check the given query whether we have already seen and deemed it unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of seen queries. \\ \par
+With this technique we save time on programs with a lot of proof-obligations for example in loops, where we see the same queries very often or when we have blocked the newest obligation and have to block the obligation chain back to the initial one.
+
+\subsection{Using Preconditions}
+As discussed in the improvements section of the lifted PDR algorithm using weakest preconditions is a really useful addition to the way proof-obligations are generated. In our implementation we instead use just the precondition, because "assume" edges have a reeeaaaallly funky weakest precondition that lead to diverse errors.
+\textbf{ToDo: A bit nicer}
+
+
 \chapter{Evaluation}
 
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6730 64-bit) (preloaded format=pdflatex 2018.7.13)  14 JUL 2018 18:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6730 64-bit) (preloaded format=pdflatex 2018.7.13)  15 JUL 2018 21:16
 entering extended mode
 **./bsc_thesis_Jonas.tex
 (bsc_thesis_Jonas.tex
@@ -786,6 +786,155 @@ Package caption Info: hyperref package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: wrapfig package is loaded.
 )
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-euclide.sty"
+Package: tkz-euclide 2011/06/01 1.16 c for plots 2d 
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-base.sty"
+Package: tkz-base 2011/06/01 1.16 c tkz-base
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\etex-pkg\etex.sty"
+Package: etex 2016/08/01 v2.7 eTeX basic definition package (PEB,DPC)
+\et@xins=\count169
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+libraryplotmarks.code.tex"
+File: tikzlibraryplotmarks.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\pgflibraryplotmarks.cod
+e.tex"
+File: pgflibraryplotmarks.code.tex 2015/08/03 v3.0.1a (rcs-revision 1.14)
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+libraryshapes.misc.code.tex"
+File: tikzlibraryshapes.misc.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1)
+
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\shapes\pgflibraryshapes
+.misc.code.tex"
+File: pgflibraryshapes.misc.code.tex 2013/07/18 v3.0.1a (rcs-revision 1.5)
+))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+librarydecorations.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\modules\pgfmoduledecorations.code
+.tex"
+\pgfdecoratedcompleteddistance=\dimen182
+\pgfdecoratedremainingdistance=\dimen183
+\pgfdecoratedinputsegmentcompleteddistance=\dimen184
+\pgfdecoratedinputsegmentremainingdistance=\dimen185
+\pgf@decorate@distancetomove=\dimen186
+\pgf@decorate@repeatstate=\count170
+\pgfdecorationsegmentamplitude=\dimen187
+\pgfdecorationsegmentlength=\dimen188
+)
+\tikz@lib@dec@box=\box53
+)
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+librarydecorations.markings.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\decorations\pgflibraryd
+ecorations.markings.code.tex"))
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
+librarydecorations.pathreplacing.code.tex"
+("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\libraries\decorations\pgflibraryd
+ecorations.pathreplacing.code.tex"))
+("C:\Program Files\MiKTeX 2.9\tex\latex\numprint\numprint.sty"
+Package: numprint 2012/08/20 v1.39 Print numbers (HH)
+\c@nprt@mantissa@digitsbefore=\count171
+\c@nprt@mantissa@digitsafter=\count172
+\c@nprt@exponent@digitsbefore=\count173
+\c@nprt@exponent@digitsafter=\count174
+\nprt@digitwidth=\skip67
+\nprt@sepwidth=\skip68
+\nprt@decimalwidth=\skip69
+\nprt@blockwidth=\skip70
+\nprt@digittoks=\toks40
+\nprt@pretoks=\toks41
+\nprt@posttoks=\toks42
+\nprt@thisdigit=\count175
+\nprt@curpos=\count176
+\nprt@rndpos=\count177
+\c@nprt@digitsfirstblock=\count178
+\c@nprt@blockcnt=\count179
+\c@nprt@cntprint=\count180
+
+No configuration file `numprint.cfg' found.)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp.sty"
+Package: fp 1995/04/02
+
+`Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\defpattern.sty"
+Package: defpattern 1994/10/12
+\actioncount=\count181
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-basic.sty"
+Package: fp-basic 1996/05/13
+\FP@xs=\count182
+\FP@xia=\count183
+\FP@xib=\count184
+\FP@xfa=\count185
+\FP@xfb=\count186
+\FP@rega=\count187
+\FP@regb=\count188
+\FP@regs=\count189
+\FP@times=\count190
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-addons.sty"
+Package: fp-addons 1995/03/15
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-snap.sty"
+Package: fp-snap 1995/04/05
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-exp.sty"
+Package: fp-exp 1995/04/03
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-trigo.sty"
+Package: fp-trigo 1995/04/14
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-pas.sty"
+Package: fp-pas 1994/08/29
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-random.sty"
+Package: fp-random 1995/02/23
+\FPseed=\count191
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-eqn.sty"
+Package: fp-eqn 1995/04/03
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-upn.sty"
+Package: fp-upn 1996/10/21
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\fp\fp-eval.sty"
+Package: fp-eval 1995/04/03
+))
+\tkzRadius=\dimen189
+\tkzLength=\dimen190
+\tkz@radi=\dimen191
+\tkz@ax=\dimen192
+\tkz@ay=\dimen193
+\tkz@bx=\dimen194
+\tkz@by=\dimen195
+\tkz@cx=\dimen196
+\tkz@cy=\dimen197
+\tkz@dx=\dimen198
+\tkz@dy=\dimen199
+
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-tools-utilities.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-tools-arith.tex"
+File: tkz-tool-arith.tex tkz-tool-arith 1.161 c
+)
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-tools-base.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-tools-misc.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-tools-math.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-obj-points.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-obj-segments.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-base\tkz-obj-marks.tex"
+\tkz@cntmk=\count192
+))
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-tools-intersections.tex
+")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-tools-transformations.t
+ex") ("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-obj-lines.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-lib-symbols.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-obj-circles.tex")
+("C:\Program Files\MiKTeX 2.9\tex\latex\tkz-euclide\tkz-obj-addpoints.tex"))
 ("C:\Program Files\MiKTeX 2.9\tex\generic\pgf\frontendlayer\tikz\libraries\tikz
 libraryautomata.code.tex"
 File: tikzlibraryautomata.code.tex 2008/07/14 v3.0.1a (rcs-revision 1.3)
@@ -799,26 +948,26 @@ File: tikzlibraryshapes.multipart.code.tex 2008/01/09 v3.0.1a (rcs-revision 1.1
 .multipart.code.tex"
 File: pgflibraryshapes.multipart.code.tex 2010/01/07 v3.0.1a (rcs-revision 1.2)
 
-\pgfnodepartlowerbox=\box53
-\pgfnodeparttwobox=\box54
-\pgfnodepartthreebox=\box55
-\pgfnodepartfourbox=\box56
-\pgfnodeparttwentybox=\box57
-\pgfnodepartnineteenbox=\box58
-\pgfnodeparteighteenbox=\box59
-\pgfnodepartseventeenbox=\box60
-\pgfnodepartsixteenbox=\box61
-\pgfnodepartfifteenbox=\box62
-\pgfnodepartfourteenbox=\box63
-\pgfnodepartthirteenbox=\box64
-\pgfnodeparttwelvebox=\box65
-\pgfnodepartelevenbox=\box66
-\pgfnodeparttenbox=\box67
-\pgfnodepartninebox=\box68
-\pgfnodeparteightbox=\box69
-\pgfnodepartsevenbox=\box70
-\pgfnodepartsixbox=\box71
-\pgfnodepartfivebox=\box72
+\pgfnodepartlowerbox=\box54
+\pgfnodeparttwobox=\box55
+\pgfnodepartthreebox=\box56
+\pgfnodepartfourbox=\box57
+\pgfnodeparttwentybox=\box58
+\pgfnodepartnineteenbox=\box59
+\pgfnodeparteighteenbox=\box60
+\pgfnodepartseventeenbox=\box61
+\pgfnodepartsixteenbox=\box62
+\pgfnodepartfifteenbox=\box63
+\pgfnodepartfourteenbox=\box64
+\pgfnodepartthirteenbox=\box65
+\pgfnodeparttwelvebox=\box66
+\pgfnodepartelevenbox=\box67
+\pgfnodeparttenbox=\box68
+\pgfnodepartninebox=\box69
+\pgfnodeparteightbox=\box70
+\pgfnodepartsevenbox=\box71
+\pgfnodepartsixbox=\box72
+\pgfnodepartfivebox=\box73
 )))
 ("C:\Program Files\MiKTeX 2.9\tex\generic\babel\babel.sty"
 Package: babel 2018/06/05 3.22 The Babel package
@@ -843,11 +992,12 @@ aphy)
 
 ("C:\Program Files\MiKTeX 2.9\tex\generic\babel\babel.def"
 File: babel.def 2018/06/05 3.22 Babel common definitions
-\babel@savecnt=\count169
-\U@D=\dimen182
+\babel@savecnt=\count193
+Normal \dimen register pool exhausted, switching to extended pool.
+\U@D=\dimen256
 
 ("C:\Program Files\MiKTeX 2.9\tex\generic\babel\txtbabel.def")
-\bbl@dirlevel=\count170
+\bbl@dirlevel=\count194
 )
 Package babel Info: Making " an active character on input line 121.
 ))
@@ -899,17 +1049,18 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 79.
 LaTeX Font Info:    ... okay on input line 79.
  ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count171
-\scratchdimen=\dimen183
-\scratchbox=\box73
-\nofMPsegments=\count172
-\nofMParguments=\count173
-\everyMPshowfont=\toks40
-\MPscratchCnt=\count174
-\MPscratchDim=\dimen184
-\MPnumerator=\count175
-\makeMPintoPDFobject=\count176
-\everyMPtoPDFconversion=\toks41
+\scratchcounter=\count195
+\scratchdimen=\dimen257
+\scratchbox=\box74
+\nofMPsegments=\count196
+\nofMParguments=\count197
+\everyMPshowfont=\toks43
+\MPscratchCnt=\count198
+\MPscratchDim=\dimen258
+\MPnumerator=\count199
+Normal \count register pool exhausted, switching to extended pool.
+\makeMPintoPDFobject=\count277
+\everyMPtoPDFconversion=\toks44
 ) ("C:\Program Files\MiKTeX 2.9\tex\latex\oberdiek\epstopdf-base.sty"
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -923,7 +1074,7 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
-\AtBeginShipoutBox=\box74
+\AtBeginShipoutBox=\box75
 Package hyperref Info: Link coloring OFF on input line 79.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
@@ -932,7 +1083,7 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 ("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\gettitlestring.sty"
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count177
+\c@section@level=\count278
 )
 LaTeX Info: Redefining \ref on input line 79.
 LaTeX Info: Redefining \pageref on input line 79.
@@ -942,7 +1093,7 @@ LaTeX Info: Redefining \nameref on input line 79.
 \@outlinefile=\write4
 \openout4 = `bsc_thesis_Jonas.out'.
 
-\c@lstlisting=\count178
+\c@lstlisting=\count279
 
 ABD: EveryShipout initializing macros
 Package caption Info: Begin \AtBeginDocument code.
@@ -962,14 +1113,14 @@ Package caption Info: End \AtBeginDocument code.
 ] [4
 
 
-] (bsc_thesis_Jonas.toc)
+] (bsc_thesis_Jonas.toc [5
+
+
+])
 \tf@toc=\write5
 \openout5 = `bsc_thesis_Jonas.toc'.
 
- [5
-
-
-]
+ [6]
 chapter 1.
 
 Class scrbook Warning: \float@addtolists detected!
@@ -1369,430 +1520,452 @@ Underfull \hbox (badness 10000) in paragraph at lines 592--596
  []
 
 [14]
-Underfull \hbox (badness 10000) in paragraph at lines 627--630
+Underfull \hbox (badness 10000) in paragraph at lines 626--629
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 627--630
+Overfull \hbox (14.55673pt too wide) in paragraph at lines 626--629
+\OT1/cmr/m/n/10.95 Reconsider the prior []ex-am-ple's[] first block-ing phase r
+e-sult-ing in the proof-obligation$(\OML/cmm/m/it/10.95 q; \OT1/cmr/m/n/10.95 1
+)$
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 626--629
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 636--637
+Underfull \hbox (badness 10000) in paragraph at lines 635--636
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 639--641
+Underfull \hbox (badness 10000) in paragraph at lines 638--640
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 639--641
+Underfull \hbox (badness 10000) in paragraph at lines 638--640
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 642--643
+Underfull \hbox (badness 10000) in paragraph at lines 641--642
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 647--648
+Underfull \hbox (badness 10000) in paragraph at lines 646--647
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 647--648
+Underfull \hbox (badness 10000) in paragraph at lines 646--647
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 649--650
+Underfull \hbox (badness 10000) in paragraph at lines 648--649
 
  []
 
-[15]
+[15] [16]
 chapter 4.
 
-Underfull \hbox (badness 10000) in paragraph at lines 664--665
+Underfull \hbox (badness 10000) in paragraph at lines 661--662
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 673--674
+Underfull \hbox (badness 10000) in paragraph at lines 670--671
 
  []
 
 Missing character: There is no ) in font nullfont!
 Missing character: There is no ; in font nullfont!
-[16
+[17
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 713--714
+Underfull \hbox (badness 10000) in paragraph at lines 710--711
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 718--719
-
- []
-
-[17]
-Underfull \hbox (badness 10000) in paragraph at lines 739--742
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 739--742
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 743--745
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 746--749
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 750--753
+Underfull \hbox (badness 10000) in paragraph at lines 715--716
 
  []
 
 [18]
-Underfull \hbox (badness 10000) in paragraph at lines 763--764
+Underfull \hbox (badness 10000) in paragraph at lines 736--739
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 769--772
+Underfull \hbox (badness 10000) in paragraph at lines 736--739
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 773--774
+Underfull \hbox (badness 10000) in paragraph at lines 740--742
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 773--774
+Underfull \hbox (badness 10000) in paragraph at lines 743--746
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 747--750
 
  []
 
 [19]
-Underfull \hbox (badness 10000) in paragraph at lines 823--824
+Underfull \hbox (badness 10000) in paragraph at lines 760--761
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 823--824
+Underfull \hbox (badness 10000) in paragraph at lines 766--769
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 825--828
+Underfull \hbox (badness 10000) in paragraph at lines 770--771
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 825--828
+Underfull \hbox (badness 10000) in paragraph at lines 770--771
 
  []
 
 [20]
-Underfull \hbox (badness 10000) in paragraph at lines 843--845
+Underfull \hbox (badness 10000) in paragraph at lines 820--821
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 860--861
+Underfull \hbox (badness 10000) in paragraph at lines 820--821
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 860--861
+Underfull \hbox (badness 10000) in paragraph at lines 822--825
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 860--861
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 870--872
+Underfull \hbox (badness 10000) in paragraph at lines 822--825
 
  []
 
 [21]
-Underfull \hbox (badness 10000) in paragraph at lines 888--889
+Underfull \hbox (badness 10000) in paragraph at lines 840--842
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 888--889
+Underfull \hbox (badness 10000) in paragraph at lines 857--858
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 888--889
+Underfull \hbox (badness 10000) in paragraph at lines 857--858
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 894--897
+Underfull \hbox (badness 10000) in paragraph at lines 857--858
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 894--897
+Underfull \hbox (badness 10000) in paragraph at lines 867--869
+
+ []
+
+[22]
+Underfull \hbox (badness 10000) in paragraph at lines 885--886
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 894--897
+Underfull \hbox (badness 10000) in paragraph at lines 885--886
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 899--901
+Underfull \hbox (badness 10000) in paragraph at lines 885--886
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 915--916
+Underfull \hbox (badness 10000) in paragraph at lines 891--894
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 915--916
+Underfull \hbox (badness 10000) in paragraph at lines 891--894
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 915--916
+Underfull \hbox (badness 10000) in paragraph at lines 891--894
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 921--924
+Underfull \hbox (badness 10000) in paragraph at lines 896--898
 
  []
 
-[22] [23]
-Underfull \hbox (badness 10000) in paragraph at lines 944--945
+
+Underfull \hbox (badness 10000) in paragraph at lines 912--913
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 912--913
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 912--913
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 918--921
+
+ []
+
+[23] [24]
+Underfull \hbox (badness 10000) in paragraph at lines 941--942
 
  []
 
 Missing character: There is no ) in font nullfont!
 Missing character: There is no ; in font nullfont!
 
-Underfull \hbox (badness 10000) in paragraph at lines 985--986
+Underfull \hbox (badness 10000) in paragraph at lines 982--983
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 985--986
+Underfull \hbox (badness 10000) in paragraph at lines 982--983
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 987--990
+Underfull \hbox (badness 10000) in paragraph at lines 984--987
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 987--990
-
- []
-
-[24]
-Underfull \hbox (badness 10000) in paragraph at lines 1005--1007
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1021--1022
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1021--1022
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1021--1022
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1030--1032
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1052--1053
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1052--1053
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1052--1053
+Underfull \hbox (badness 10000) in paragraph at lines 984--987
 
  []
 
 [25]
-Underfull \hbox (badness 10000) in paragraph at lines 1059--1062
+Underfull \hbox (badness 10000) in paragraph at lines 1002--1004
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1059--1062
+Underfull \hbox (badness 10000) in paragraph at lines 1018--1019
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1059--1062
+Underfull \hbox (badness 10000) in paragraph at lines 1018--1019
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1063--1065
+Underfull \hbox (badness 10000) in paragraph at lines 1018--1019
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1077--1078
+Underfull \hbox (badness 10000) in paragraph at lines 1027--1029
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1077--1078
+Underfull \hbox (badness 10000) in paragraph at lines 1049--1050
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1077--1078
+Underfull \hbox (badness 10000) in paragraph at lines 1049--1050
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1049--1050
 
  []
 
 [26]
-Underfull \hbox (badness 10000) in paragraph at lines 1105--1107
+Underfull \hbox (badness 10000) in paragraph at lines 1056--1059
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1110--1111
+Underfull \hbox (badness 10000) in paragraph at lines 1056--1059
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1110--1111
+Underfull \hbox (badness 10000) in paragraph at lines 1056--1059
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1110--1111
+Underfull \hbox (badness 10000) in paragraph at lines 1060--1062
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1112--1113
+Underfull \hbox (badness 10000) in paragraph at lines 1074--1075
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1131--1132
+Underfull \hbox (badness 10000) in paragraph at lines 1074--1075
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1133--1135
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1142--1143
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1142--1143
+Underfull \hbox (badness 10000) in paragraph at lines 1074--1075
 
  []
 
 [27]
-Underfull \hbox (badness 10000) in paragraph at lines 1146--1148
+Underfull \hbox (badness 10000) in paragraph at lines 1102--1104
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1146--1148
+Underfull \hbox (badness 10000) in paragraph at lines 1107--1108
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1150--1152
+Underfull \hbox (badness 10000) in paragraph at lines 1107--1108
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1150--1152
+Underfull \hbox (badness 10000) in paragraph at lines 1107--1108
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1109--1110
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1134--1136
 
  []
 
 [28]
+Underfull \hbox (badness 10000) in paragraph at lines 1142--1143
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1142--1143
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1147--1148
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1147--1148
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1151--1152
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1151--1152
+
+ []
+
+[29]
 chapter 5.
-[29
+
+Underfull \hbox (badness 10000) in paragraph at lines 1181--1184
+
+ []
 
 
-]
-chapter 6.
+Underfull \hbox (badness 10000) in paragraph at lines 1181--1184
+
+ []
+
 [30
 
 
 ]
-chapter 7.
-[31
+Overfull \hbox (20.9534pt too wide) in paragraph at lines 1252--1253
+[][] 
+ []
 
 
-] [32
+Underfull \hbox (badness 10000) in paragraph at lines 1257--1257
+
+ []
+
+[31] [32]
+chapter 6.
+[33
 
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1223.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1223.
+chapter 7.
+[34
+
+
+] [35
+
+
+]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1302.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1302.
  (bsc_thesis_Jonas.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1223.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1223.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1302.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1302.
 
 Package rerunfilecheck Info: File `bsc_thesis_Jonas.out' has not changed.
-(rerunfilecheck)             Checksum: F8D5321679B87A45989CD899FD42927F;1494.
+(rerunfilecheck)             Checksum: 7A45365E2F5C0DDF8BC2CB0551C77F67;2284.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1223.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1302.
  ) 
 Here is how much of TeX's memory you used:
- 24106 strings out of 492973
- 470458 string characters out of 3135935
- 697854 words of memory out of 3000000
- 27494 multiletter control sequences out of 15000+200000
+ 27368 strings out of 492973
+ 538739 string characters out of 3135935
+ 789683 words of memory out of 3000000
+ 30615 multiletter control sequences out of 15000+200000
  12901 words of font info for 46 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 73i,16n,70p,9118b,1008s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 73i,16n,72p,9118b,1008s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Program F
 iles/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiK
@@ -1809,9 +1982,9 @@ fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
 e1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
 /amsfonts/cm/cmtt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
 s/latxfont/line10.pfb>
-Output written on bsc_thesis_Jonas.pdf (38 pages, 317018 bytes).
+Output written on bsc_thesis_Jonas.pdf (42 pages, 331638 bytes).
 PDF statistics:
- 410 PDF objects out of 1000 (max. 8388607)
- 83 named destinations out of 1000 (max. 500000)
- 205 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 480 PDF objects out of 1000 (max. 8388607)
+ 98 named destinations out of 1000 (max. 500000)
+ 285 words of extra memory for PDF output out of 10000 (max. 10000000)
 
