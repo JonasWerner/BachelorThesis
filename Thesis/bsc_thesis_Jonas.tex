@@ -180,25 +180,23 @@ Another possible way is proposed by Hoder and Bjørner in \cite{GeneralizedIc3} 
 
 \chapter{PDR Background}
 \label{PDR}
-In the following I will describe the basic principle behind PDR as a hardware-checker as used in \texttt{IC3}, therefore we use only boolean variables.
-
+In the following we will describe how IC3 and to that extend PDR works as a hardware-checker, because hardware only uses bits, every variable will be boolean.
 \section{Preliminaries}
-First some preliminary definitions and notations: \\ \\
+First some preliminary definitions and notations:  \par
 A \textsl{literal} is a variable or its negation, e.g., $x \text{ or } \bar y$ \\
 A \textsl{clause} is a disjunction of literals, e.g., $x \lor \bar y$ \\
 A \textsl{cube} is a conjunction of literals, e.g.,  $x \land \bar y$ \\
-Therefore, the negation of a cube is a clause. $\overline{(x \land \bar y)} \equiv (\bar x \lor y)$ \\ \\
-
-A \textsl{boolean transition system} is a tuple $S = (X, I, T)$ where $X$ is a finite set of boolean variables, $I$ is a cube representing the \textsl{initial state}, and $T$ is a propositional formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, called transition relation, that describes updates to the variables.
-\\
-
+Therefore, the negation of a cube is a clause. $\overline{(x \land \bar y)} \equiv (\bar x \lor y)$  \par
+A \textsl{boolean transition system} is a tuple $S = (X, I, T)$, where $X$ is a finite set of boolean variables, $I$ is a cube representing the \textsl{initial state}, and $T$ is a propositional formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, called transition relation, that describes updates to the variables.
+\par
 For example, consider the transition system $U = (X, I, T)$ where
 \begin{itemize}
 \item $ X= \{x_1, x_2, x_3\}$
 \item $I = \bar x_1 \land \bar x_2 \land \bar x_3$
 \item $T = (x_1 \lor \neg x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')$
 \end{itemize}
-With transition graph:
+\pagebreak
+With corresponding transition graph:
 
 \begin{figure}[H]
 \hspace*{-2.5cm}
@@ -265,20 +263,20 @@ With transition graph:
 
  
 
-Given a propositional formula $\phi$ over $X$ we get a \textsl{primed formula} $\phi'$ by replacing each variable with its corresponding variable in $X'$. \\
+Given a propositional formula $\phi$ over $X$ we get a \textsl{primed formula} $\phi'$ by replacing each variable with its corresponding variable in $X'$. \par
 
 A \textsl{state} in $S$ is a cube containing each variable from $X$ with a boolean valuation of it. For each possible valuation there is a corresponding state, resulting in $2^{|X|}$ states in $S$. \\
 Like we see in the graph of $U$ we have $2^{|X|} = 2^3 = 8$ states.
 
 A \textsl{transition} from one state $s$ to another state $q$ exists if the conjunction of $s$, the transition relation, and $q'$ is satisfiable.\\ For example in $U$ the transition between the initial state $I = \bar x_1 \land \bar x_2 \land \bar x_3$ and state $r = x_1 \land \bar x_2 \land \bar x_3$ exists because
-\begin{align*}
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{I} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_T \land \underbrace{x_1' \land \bar x_2' \land \bar x_3'}_{r'}
-\end{align*}
-is satisfiable.\\
+\end{equation*}
+is satisfiable.\par
 
 Given a propositional formula $P$ over $X$, called \textsl{property}, we want
 to verify that every state in $S$ that is reachable from
-$I$ satisfies $P$ such that, $P$ describes a set of \textsl{good states}, conversely $\bar P$ represent a set of $bad$ states.  \\ 
+$I$ satisfies $P$ such that, $P$ describes a finite set of \textsl{good states}, conversely $\bar P$ represent a finite set of $bad$ states.  \\ 
 Regarding $U$, let $P = \bar x_1 \lor \bar x_2 \lor \bar x_3$ be given, making $\bar P = x_1 \land x_2 \land x_3$ a bad state. \\ 
 We can use PDR to show that either $\bar P$ is unreachable from $I$ or that there exists a sequence of transitions leading to $\bar P$ as counter-example.
 
@@ -305,7 +303,7 @@ Start with checking for a \textsl{0-counter-example}, that means checking if $I 
 If the formula is unsatisfiable, initialize the first frame $F_0 = I$, fulfilling (I), and moving on. \\
 
 Let $[F_0, F_1, ..., F_k]$ be the current trace. \\ 
-The algorithm repeats the following three phases until termination: \\
+The algorithm repeats the following three phases until termination: \par
 
 \textsl{1. Next Transition} \\ Check whether the next state is a good state meaning $F_k \land T \Rightarrow P'$ is valid, by testing the satisfiability of $F_k \land T \land \bar P'$ 
 \begin{itemize}
@@ -329,8 +327,10 @@ Take proof-obligation $(b, i)$ and try to block the bad state $b$ by checking if
 This continues recursively until either a proof-obligation $(d, 0)$ is created proving that there exists a counter-example terminating the algorithm, or
 there is no proof-obligation left. \\
 
-\textsl{3. Propagation-Phase}\\ Add a new frame $F_{k + 1} = P$ and propagate clauses from $F_{k}$ forward, meaning for all clauses $c$ in $F_{k}$ check $F_{k} \land T \land \bar c'$ for satisfiability. If that formula is unsatisfiable, strengthen $F_{k+1}$ with $c$: $F_{k+1} = F_{k+1} \land c$, else do nothing and continue with the next clause. Because of this phase rule (II) is fulfilled.\\ \\
+\textsl{3. Propagation-Phase}\\ Add a new frame $F_{k + 1} = P$ and propagate clauses from $F_{k}$ forward, meaning for all clauses $c$ in $F_{k}$ check $F_{k} \land T \land \bar c'$ for satisfiability. If that conjunction is unsatisfiable, strengthen $F_{k+1}$ with $c$: $F_{k+1} = F_{k+1} \land c$, else do nothing and continue with the next clause. Because of this phase rule (II) is fulfilled.\\ \\
 After propagating all possible clauses, if $F_{k+1} \equiv F_{k}$ the algorithm found a fixpoint and terminates returning that $P$ always holds with $F_k$ being the inductive invariant. \\ \\
+
+\pagebreak
 
 To illustrate the procedure further consider the pseudo-code: \\
 
@@ -373,7 +373,7 @@ To illustrate the procedure further consider the pseudo-code: \\
 \section{Examples}
  
 \subsection{With Failing Property} 
-To show an application of the algorithm reconsider the \hyperref[ex1]{example} transition system $U = (X, I, T$) where \\
+To show an application of the algorithm reconsider the \hyperref[ex1]{example} transition system $U = (X, I, T$) where \par
 \begin{itemize}
 \item $X = \{x_1, x_2, x_3\}$
 \item $I = \bar x_1 \land \bar x_2 \land \bar x_3$
@@ -386,117 +386,115 @@ and the property:
 We now want to verify whether $P$ holds or if there is a counter-example. \\ \\
 
 \textbf{1. Step: Check for 0-Counter-Example} \\ We need to make sure that $ I \Rightarrow P$, we do that by testing if $I \land \bar P$ is satisfiable:
-\begin{align*}
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{\text{I}} \land \underbrace{x_1 \land x_2 \land x_3}_{ \bar P}
-\end{align*}
-The formula is unsatisfiable meaning there is no 0-counter-example, we continue by initializing $F_0 = I$ \\ \\  \\
+\end{equation*}
+The formula is unsatisfiable meaning there is no 0-counter-example, we continue by initializing $F_0 = I$ \\ \\  \par
 
 \textbf{2. Step: First Transition}\\
 Check if $F_0 \land T \Rightarrow P'$, by testing if $F_0 \land T \land \bar P'$ is satisfiable: 
-\begin{align*}
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{F_0} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{ x_1' \land x_2' \land x_3'}_{\bar P'}
-\end{align*}
-Which it is not because $\bar x_1 \land (x_1 \lor \bar x_2') \land x_2'$ is unsatisfiable. We do not generate a proof-obligation so we can skip the blocking-phase and continue on with the propagation-phase. \\ \\ \\
+\end{equation*}
+Which is not satisfiable because $\bar x_1 \land (x_1 \lor \bar x_2') \land x_2'$ is unsatisfiable. We do not generate a proof-obligation, so that we can skip the blocking-phase and continue on with the propagation-phase. \\ \\ \par
 
 \textbf{3. Step: First Propagation-Phase} \\
-Initialize $F_1 = P$ \\
-Check each clause $c$ in $F_0$ for $F_0 \land T \land \bar c'$ to strengthen $F_1$.
+Initialize the new frame $F_1 = P$ \\
+We need to check each clause $c$ in $F_0$ if $F_0 \land T \land \bar c'$ is unsatisfiable to strengthen $F_1$.
 \begin{itemize}
-\item $c = \bar x_1$
-\begin{align*}
+\item $c = \bar x_1:$
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{F_0} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_1'}_{\bar c'}
-\end{align*}
-Satisfiable with $(\bar x_1, \bar x_2, \bar x_3, x_1', \bar x_2', \bar x_3')$ \\ 
-$\rightarrow$ Do not add $\bar x_1$ to $F_1$. \\
+\end{equation*}
+The conjunction is satisfiable with assignment $(\bar x_1, \bar x_2, \bar x_3, x_1', \bar x_2', \bar x_3')$ \\ 
+We do not need to add $\bar x_1$ to $F_1$. \\
 
-\item $c = \bar x_2$
-\begin{align*}
+\item $c = \bar x_2:$
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{F_0} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_2'}_{\bar c'}
-\end{align*}
-Unsatisfiable because $\bar x_1 \land (x_1 \lor \bar x_2') \land x_2'$ is not satisfiable \\ $\rightarrow$ Add $\bar x_2$ to $F_1 \\ \rightarrow F_1 = P \land \bar x_2$. \\
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_1 \land (x_1 \lor \bar x_2') \land x_2'$ is not satisfiable \\ We add $\bar x_2$ to $F_1$ resulting in $F_1 = P \land \bar x_2$. \\
 
-\item $c = \bar x_3$
-\begin{align*}
+\item $c = \bar x_3:$
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{F_0} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_3'}_{\bar c'}
-\end{align*}
-Unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable \\ $\rightarrow$ Add $\bar x_3$ to $F_1$ \\ $\rightarrow F_1 = P \land \bar x_2 \land \bar x_3$
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable \\ We add $\bar x_3$ to $F_1$ resulting in $\rightarrow F_1 = P \land \bar x_2 \land \bar x_3$
 \end{itemize}
-With that the first propagation-phase is done resulting in 
-\begin{align*}
+There are no clauses left, the first propagation-phase is done, resulting in the new frame:
+\begin{equation*}
  F_1 = (\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_2 \land \bar x_3
-\end{align*}
-and because $F_1 \not\equiv F_0$ we continue. \\ \\ \\
+\end{equation*}
+and because $F_1 \not\equiv F_0$ we continue. \\ \\ \par
 
 \textbf{4. Step: Second Transition} \\
 Check if $F_1 \land T \Rightarrow P'$ by testing $F_1 \land T \land \bar P'$ for satisfiability: 
-\begin{align*}
+\begin{equation*}
 \underbrace{(\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_2 \land \bar x_3}_{F_1} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_1' \land x_2' \land x_3'}_{ \bar P'}
-\end{align*}
-Which is unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable. We do not generate a proof-obligation so we continue with the second propagation-phase. \\ \\ \\
+\end{equation*}
+Which is unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable. We do not generate a proof-obligation so we continue with the second propagation-phase. \\ \\ \par
 
 \textbf{5. Step: Second Propagation-Phase} \\
-Initialize $F_2 = P$ \\
-Check each clause $c$ in $F_1$ for $F_1 \land T \land \bar c'$ to strengthen $F_2$. We skip $P$, as it is already part of $F_2$. \\ \\
-This works exactly as in the 3. step: \\
+Initialize new frame $F_2 = P$ \\
+We need to check each clause $c$ in $F_1$ if $F_1 \land T \land \bar c'$ is unsatisfiable to strengthen $F_2$. We skip $P$, as it is already part of $F_2$. \\ 
+This works exactly as in the 3. step: \par
 \begin{itemize}
-\item $c = \bar x_2$ 
-\begin{align*}
+\item $c = \bar x_2:$ 
+\begin{equation*}
 \underbrace{(\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_2 \land \bar x_3}_{F_1} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_2'}_{\bar c'}
-\end{align*}
-Satisfiable with $(x_1, \bar x_2, \bar x_3, x_1', x_2', \bar x_3')$ \\
-$\rightarrow$ Do not add $\bar x_2$ to $F_2$ \\
+\end{equation*}
+The conjunction is satisfiable with assignment $(x_1, \bar x_2, \bar x_3, x_1', x_2', \bar x_3')$ \\
+We do not need to add $\bar x_2$ to $F_2$ \\
 
-\item $c = \bar x_3$ 
-\begin{align*} 
+\item $c = \bar x_3:$ 
+\begin{equation*} 
 \underbrace{(\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_2 \land \bar x_3}_{F_1} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_3'}_{\bar c'}
-\end{align*}
-Unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable. \\ $\rightarrow$ Add $\bar x_3$ to $F_2$ \\ $\rightarrow F_2 = P \land \bar x_3$
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_3') \land x_3'$ is not satisfiable. \\ We add $\bar x_3$ to $F_2$ resulting in $F_2 = P \land \bar x_3$
 \end{itemize}
-That concludes the second propagation-phase resulting in 
-\begin{align*}
+As there are no clauses left, the second propagation-phase concludes, resulting in the new frame:
+\begin{equation*}
 F_2 = (\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_3
-\end{align*}
+\end{equation*}
 and because $F_2 \not\equiv F_1$ we continue. \\ \\
 
-\textbf{6. Step: Third Transition Step} \\ Check $F_2 \land T \Rightarrow \bar P'$ by testing $F_2 \land T \land \bar P'$ for satisfiability \\
-\begin{align*}
+\textbf{6. Step: Third Transition} \\ Check if $F_2 \land T \Rightarrow P'$ by testing $F_2 \land T \land \bar P'$ for satisfiability:
+\begin{equation*}
 \underbrace{(\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_3}_{F_2} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_1' \land x_2' \land x_3'}_{ \bar P'}
-\end{align*}
-This time $F_2 \land T \land \bar P'$ is satisfiable with assignment $( \underbrace{x_1, x_2, \bar x_3}_{s}, x_1', x_2', x_3')$, we get the new bad state $s = x_1 \land x_2 \land \bar x_3$, and generate a proof-obligation $(s, 2)$, which we now try to block in the blocking-phase. \\ \\ \\
+\end{equation*}
+This time $F_2 \land T \land \bar P'$ is satisfiable with assignment $( \underbrace{x_1, x_2, \bar x_3}_{s}, x_1', x_2', x_3')$, we get the new bad state $s = x_1 \land x_2 \land \bar x_3$, and generate a proof-obligation $(s, 2)$, which we now try to block in the blocking-phase. \\ \\ \par
 
-\textbf{7. Step: First Blocking-Phase} \\ Try to block proof-obligation $(s, 2)$ by checking if $F_1 \land T \land s'$ is satisfiable. \label{ex2}
-
-\begin{align*}
+\textbf{7. Step: First Blocking-Phase} \\ Try to block proof-obligation $(s, 2)$ by checking if $F_1 \land T \land s'$ is satisfiable.
+\begin{equation*}
 \underbrace{(\bar x_1 \lor \bar x_2 \lor \bar x_3) \land \bar x_2 \land \bar x_3}_{F_1} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_1' \land x_2' \land \bar x_3'}_{ s'}
-\end{align*}
+\end{equation*}
 
-This is again satisfiable with assignment $(\underbrace{x_1, \bar x_2, \bar x_3}_{\text{q}}, x_1', x_2', \bar x_3')$, we get the bad state $q = x_1 \land \bar x_2 \land \bar x_3$ and generate a new proof-obligation $(q, 1)$. \\ \\ \\
+This is again satisfiable with assignment $(\underbrace{x_1, \bar x_2, \bar x_3}_{\text{q}}, x_1', x_2', \bar x_3')$, we get the bad state $q = x_1 \land \bar x_2 \land \bar x_3$ and generate a new proof-obligation $(q, 1)$. \\ \\ \par
 
-Try to block proof-obligation $(q, 1)$ by checking if $F_0 \land T \land q'$ is satisfiable.
-\begin{align*}
+We try to block proof-obligation $(q, 1)$ by checking if $F_0 \land T \land q'$ is satisfiable.
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{F_0} \land \underbrace{(x_1 \lor \bar x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')}_{T} \land \underbrace{x_1' \land \bar x_2' \land \bar x'_3}_{ q'}
-\end{align*}
+\end{equation*}
 
-This too is satisfiable with assignment $(\underbrace{\bar x_1, \bar x_2, \bar x_3}_{\text{I}}, x_1', \bar x_2', \bar x_3')$, we get the bad state $I = x_1 \land \bar x_2 \land \bar x_3$ and generate a new proof-obligation $(I, 0)$.
+This too is satisfiable with assignment $(\underbrace{\bar x_1, \bar x_2, \bar x_3}_{I}, x_1', \bar x_2', \bar x_3')$, we get the bad state $I = x_1 \land \bar x_2 \land \bar x_3$ and generate a new proof-obligation $(I, 0)$.
 
-With that we have found a counter-example, resulting in the termination of the algorithm returning the counter-example trace: 
-\begin{align*}
+With that we have found a counter-example, resulting in the termination of the algorithm, returning the counter-example trace: 
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2 \land \bar x_3}_{I} \rightarrow \underbrace{x_1 \land \bar x_2 \land \bar x_3}_{q} \rightarrow \underbrace{x_1 \land x_2 \land \bar x_3}_{s} \rightarrow \underbrace{x_1 \land x_2 \land x_3}_{\bar P}   
-\end{align*}
+\end{equation*}
 
-Assume proof-obligation $(s, 2)$ would have been blocked, meaning $F_1 \land T \land s'$ was unsatisfiable, then we would have updated $F_2 = F_2 \land \bar s$ making absolutely sure that $s$ is not reachable, every future proof-obligation containing $s$ would have been blocked by $F_2$.
+If we now assume proof-obligation $(s, 2)$ would have been blocked, meaning $F_1 \land T \land s'$ was unsatisfiable, then we would have updated $F_2 = F_2 \land \bar s$ making absolutely sure that $s$ is not reachable, every future proof-obligation containing $s$ would have been blocked by $F_2$.
 
 \pagebreak
 
 \subsection{With Passing Property}
-To show a transition system with an inductive invariant consider $B = (X, I, T)$ where
+To show a transition system with an inductive invariant, consider $B = (X, I, T)$, where
 \begin{itemize}
 \item $X = \{x_1, x_2\}$
 \item $I = \bar x_1 \land \bar x_2 $
 \item  $T = ( x_1 \lor \bar x_2 \lor x_2') \land (x_1 \lor x_2 \lor \bar x_1') \land (\bar x_1 \lor x_1') \land (\bar x_1 \lor \bar x_2') \land (x_2 \lor \bar x_2')$
 \end{itemize}
-and transition graph: \\
-
+and corresponding transition graph: \par
 
 \begin{figure}[H]
 \centering
@@ -537,78 +535,82 @@ and transition graph: \\
  \label{ex1}  
 
 
-Now given the property $P = \bar x_1 \lor x_2$, we want to check whether the bad state $\bar P = x_1 \land \bar x_2$ is reachable: \\ \\
+Now given the property $P = \bar x_1 \lor x_2$, we want to check whether the bad state $\bar P = x_1 \land \bar x_2$ is reachable: \\ \par
 
 \textbf{1. Step: Check for 0-Counter-Example} \\ 
-Check for 0-counter-example to verify $I \Rightarrow P$ by testing $I \land \bar P$ for satisfiability: 
-\begin{align*}
-\bar x_1 \land \bar x_2 \land x_1 \land \bar x_2
-\end{align*}
-The formula is unsatisfiable because $\bar x_1 \land x_1$ that means there is no 0-counter-example. \\ \\ \\
+We need to make sure that $I \Rightarrow P$, we do that by testing if $I \land \bar P$ is satisfiable: 
+\begin{equation*}
+\underbrace{\bar x_1 \land \bar x_2}_{I} \land \underbrace{x_1 \land \bar x_2}_{\bar P}
+\end{equation*}
+Which is unsatisfiable because $\bar x_1 \land x_1$, that means there is no 0-counter-example, we continue by initializing $F_0 = I$\\ \\ \par
 
 \textbf{2. Step: First Transition} \\
-Initialize $F_0 = I$ and check if $F_0 \land T \Rightarrow P'$ by testing $F_0 \land T \land \bar P'$ for satisfiability:
-\begin{align*}
+Check if $F_0 \land T \Rightarrow P'$ by testing if $F_0 \land T \land \bar P'$ is satisfiable:
+\begin{equation*}
 \underbrace{\bar x_1 \land \bar x_2}_{F_0} \land \underbrace{( x_1 \lor \bar x_2 \lor x_2') \land (x_1 \lor x_2 \lor \bar x_1') \land (\bar x_1 \lor x_1') \land (\bar x_1 \lor \bar x_2') \land (x_2 \lor \bar x_2')}_{T} \land \underbrace{x_1' \land \bar x_2'}_{\bar P'}
-\end{align*}
+\end{equation*}
 
-Which is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor x_1') \land \bar x_1'$ is not satisfiable. We generate no proof-obligation and continue with the propagation-phase. \\ \\ \\
+Which is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor x_1') \land \bar x_1'$ is not satisfiable. We generate no proof-obligation and continue with the propagation-phase. \\ \\
 
-\textbf{3. Step: First Propagation-Phase} \\ Initialize $F_1 = P$ \\
-For each clause $c$ in $F_0$ check $F_0 \land T \land \bar c'$ for satisfiability to strengthen $F_1$. \\
+\textbf{3. Step: First Propagation-Phase} \\ Initialize the new frame $F_1 = P$ \\
+For each clause $c$ in $F_0$ we check $F_0 \land T \land \bar c'$ for unsatisfiability to strengthen $F_1$.
 \begin{itemize}
-\item $c = \bar x_1$
-\begin{align*}
+\item $c = \bar x_1:$
+\begin{equation*}
 \bar x_1 \land \bar x_2 \land T \land x_1'
-\end{align*}
-Unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor x_1') \land \bar x_1'$ is not satisfiable.\\ $\rightarrow$ Add $\bar x_1$ to $F_1$ \\ $\rightarrow F_1 = P \land \bar x_1$ \\
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor x_1') \land \bar x_1'$ is not satisfiable.\\ We add $\bar x_1$ to $F_1$ resulting in $F_1 = P \land \bar x_1$ \\
 
-\item$c = \bar x_2$
-\begin{align*}
+\item$c = \bar x_2:$
+\begin{equation*}
 \bar x_1 \land \bar x_2 \land T \land x_2'
-\end{align*}
-Unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_2 \lor \bar x_2') \land x_2'$ is not satisfiable. \\ $\rightarrow$ Add $\bar x_2$ to $F_1$ \\ $\rightarrow F_1 = P \land \bar x_1 \land \bar x_2$
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_2 \lor \bar x_2') \land x_2'$ is not satisfiable. \\ We add $\bar x_2$ to $F_1$ resulting in $F_1 = P \land \bar x_1 \land \bar x_2$
 \end{itemize}
-That concludes the propagation-phase resulting in
-\begin{align*}
+That concludes the propagation-phase resulting in the new frame
+\begin{equation*}
 F_1 =(\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2
-\end{align*}
+\end{equation*}
 and because $F_1 \not\equiv F_0$ we continue. \\ \\ \\
 
 \textbf{4. Step: Second Transition} \\
-Check if $F_1 \land T \Rightarrow P'$ by testing $F_1 \land T \land \bar P'$ for satisfiability: 
-\begin{align*}
+Check if $F_1 \land T \Rightarrow P'$ by testing if $F_1 \land T \land \bar P'$ is satisfiable: 
+\begin{equation*}
 (\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2 \land T \land x_1' \land \bar x_2'
-\end{align*}
-Which is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor \bar x_1') \land x_1'$ is not satisfiable. We again do not generate a proof-obligation, so that we continue with the second propagation-phase. \\ \\ \\
+\end{equation*}
+Which is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor \bar x_1') \land x_1'$ is not satisfiable. We again do not generate a proof-obligation, so that we continue with the second propagation-phase. \\ \\ \par
 
 \textbf{5. Step: Second Propagation-Phase} \\
-Initialize $F_2 = P$ \\
-For every clause $c$ in $F_1$ check $F_1 \land T \land \bar c'$ for satisfiability, again skipping $P$. 
+Initialize the new frame $F_2 = P$ \\
+We need to check every clause $c$ in $F_1$ if $F_1 \land T \land \bar c'$ is unsatisfiable to strengthen $F_2$.\\ We  skip $P$. 
 \begin{itemize}
-\item $c = \bar x_1$
-\begin{align*}
+\item $c = \bar x_1:$
+\begin{equation*}
 (\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2 \land T \land x_1'
-\end{align*}
-Unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor \bar x_1') \land x_1'$ is not satisfiable \\
-$\rightarrow$ Add $\bar x_1$ to $F_2$ \\
-$\rightarrow F_2 = P \land \bar x_1$ \\
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_1 \land \bar x_2 \land (x_1 \lor x_2 \lor \bar x_1') \land x_1'$ is not satisfiable \\
+We add $\bar x_1$ to $F_2$ resulting in
+$F_2 = P \land \bar x_1$ \\
 
-\item $c = \bar x_2$ 
-\begin{align*}
+\item $c = \bar x_2:$ 
+\begin{equation*}
 (\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2 \land T \land x_2'
-\end{align*}
-Unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_2') \land x_2'$ is not satisfiable. \\
-$\rightarrow$ Add $\bar x_2$ to $F_2$ \\
-$\rightarrow F_2 = P \land \bar x_1 \land \bar x_2$
+\end{equation*}
+The conjunction is unsatisfiable because $\bar x_2 \land (x_2 \lor \bar x_2') \land x_2'$ is not satisfiable. \\
+We add $\bar x_2$ to $F_2$ resulting in
+$F_2 = P \land \bar x_1 \land \bar x_2$
 
 \end{itemize}
 
-With that the second propagation-phase ends, resulting in 
-\begin{align*}
+With no more clauses left the second propagation-phase ends, resulting in 
+\begin{equation*}
 F_2 = (\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2 \equiv F_1
-\end{align*}
-The algorithm terminates returning that the property always holds and $(\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2$ being an inductive invariant.
+\end{equation*}
+The algorithm terminates returning that the property always holds and
+\begin{equation*}
+(\bar x_1 \lor x_2) \land \bar x_1 \land \bar x_2
+\end{equation*}
+ being an inductive invariant.
 
 \section{Possible Improvements}
 The most time consuming part of the algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small:
@@ -625,7 +627,7 @@ Ternary logic extends the binary logic by introducing a new valuation: $X$, call
 (X \land false) &= false, \\ (X \land true) &= X, \\ (X \land X) &= X, \\ \bar X &= X
 \end{align*}
 To remove state variables, set one variable at a time to $X$ and try to transition to a next state using the transition relation, the variable is needed if $X$ propagates into the next state, if it does not remove the variable from the proof-obligation. \\ \\
-Reconsider the prior \hyperref[ex2]{example's} first blocking phase resulting in the proof-obligation$(q, 1)$ with bad state $q = x_1 \land \bar x_2 \land \bar x_3$, we now want to reduce that proof-obligation using ternary simulation: \\
+Reconsider the prior \hyperref[ex2]{example's} first blocking phase resulting in the proof-obligation$(q, 1)$ with bad state $q = x_1 \land \bar x_2 \land \bar x_3$, we now want to reduce that proof-obligation using ternary simulation: \par
 
 First of all, the transition formula:
 \begin{equation*}
@@ -655,18 +657,18 @@ Because there is no clause being unknown, $x_3$ can be removed from the proof-ob
 
 
 \chapter{PDR as Software Checker} \label{sec3}
-We see that PDR is a useful hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described in \cite{Zitat05}. \\ To use PDR on software we first need some new definitions and other preliminaries.
+We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described by Lange et al. \cite{Zitat05}. \\ To use PDR on software we first need some new definitions and other preliminaries.
 
 \section{Preliminaries}
-A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a tuple, consisting of a finite set of variables $X$, a finite set of locations $L$, a finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, an initial location $\ell_0 \in L$, and an error location $\ell_E \in L$.\\ 
+A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a tuple, consisting of a finite set of variables $X$, a finite set of locations $L$, a finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, an initial location $\ell_0 \in L$, and an error location $\ell_E \in L$.\par
 
-
-For example consider the CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ where
+For example consider the CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
 \begin{itemize}
 \item $X = \{x\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_3, \ell_E\}$
 \item $G = \{(\ell_0, x' := 0, \ell_1), (\ell_1, x' := x + 1, \ell_2), (\ell_2, x = 1, \ell_E), (\ell_2, x \neq 1, \ell_3) \} $
 \end{itemize}
+\pagebreak
 with the graph: \\
 
 \begin{figure}[H]
@@ -696,7 +698,7 @@ with the graph: \\
     
  	  \path (1) edge node {$x := 0$} (2)
  	  (2) edge node {$x := x + 1$} (3)
- 	  (3) edge node {$x \neq 0$} (4)
+ 	  (3) edge node {$x \neq 1$} (4)
  	  (3) edge [edge label={$x = 1$}, swap] node {} (5)
  	  ;
 
@@ -707,10 +709,12 @@ with the graph: \\
  \end{figure}
  \label{ex1} 
 
-The transition formula $T_{\ell_1 \rightarrow \ell_2}$ from one location $\ell_1$ to another location $\ell_2$ is defined as: \\
-$$T_{\ell_1 \rightarrow \ell_2} = \begin{cases} (\ell_1, t, \ell_2), & (\ell_1, t, \ell_2) \in G \\
+The transition formula $T_{\ell_1 \rightarrow \ell_2}$ from one location $\ell_1$ to another location $\ell_2$ is defined as:
+\begin{equation*}
+T_{\ell_1 \rightarrow \ell_2} = \begin{cases} (\ell_1, t, \ell_2), & (\ell_1, t, \ell_2) \in G \\
                      false, & otherwise
-       \end{cases}$$
+       \end{cases}
+\end{equation*}
 
 Resulting in the global transition formula: \\
 $$ T = \bigvee_{(\ell_1, t, \ell_2) \in G} T_{\ell_1 \rightarrow \ell_2}$$
@@ -734,25 +738,26 @@ Because the states in a CFG are no formulas, the lifted algorithm no longer bloc
 \hspace*{5cm}
 
 \textsl{In more detail}: \\
-Given a CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ we want to check if $\ell_E$ is reachable: \\ \\
-Again start with checking for a 0-counter-example, this is easily done by looking at $\ell_0$. If $\ell_0 = \ell_E$ terminate and return that $\ell_E$ is indeed reachable, if $\ell_0 \neq \ell_E$ initialize level 0 frames for all locations $\ell \in L \backslash \{\ell_0, \ell_E\}$ as \texttt{false}, and for $\ell_0$ as \texttt{true}. \\ 
-
+Given a CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ we want to check if $\ell_E$ is reachable: \par
+Again start with checking for a 0-counter-example, this is easily done by looking at $\ell_0$ if $\ell_0 = \ell_E$ terminate and return that $\ell_E$ is indeed reachable, if $\ell_0 \neq \ell_E$ initialize level 0 frames for all locations $\ell \in L \backslash \{\ell_0, \ell_E\}$ as \texttt{false}, and for $\ell_0$ as \texttt{true}. \par
 Let $k$ be the current level, so that each location $\ell \in L \backslash \{\ell_E\}$ has frames $[F_{0, \ell}, ..., F_{k, \ell}]$. \\
 The algorithm repeats the following phases: \\
 
 \textsl{1. Next Level} \\
 Initialize for each $\ell \in L \backslash \{\ell_E\}$ a new frame $k + 1$ as \texttt{true}. \\
-For each location $\ell \in L$ where $(\ell, t, \ell_E) \in G$ generate an initial proof-obligation $(t, \ell, k)$. \\ 
+For each location $\ell \in L$ where $(\ell, t, \ell_E) \in G$ generate an initial proof-obligation $(t, \ell, k)$. \\
+
+\pagebreak
 
 \textsl{2. Blocking-Phase} \\
 If there are proof-obligations: \\
-Take proof-obligation $(t, \ell, i)$ with the lowest $i$ and check for each predecessor location $\ell_{pre}$ if the formula: \\
+Take proof-obligation $(t, \ell, i)$ with the lowest $i$ and check for each predecessor location $\ell_{pre}$ if the formula:
 \begin{equation*}
 F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell} \land t'
 \end{equation*}
 is satisfiable.
 \begin{itemize}
-\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, generate an new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$.
+\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, generate a new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$.
 
 \item If the formula is \textsl{unsatisfiable}, strengthen each frame $F_{j, \ell}$, $j \leq i$ with $\bar t$, meaning $F_{j, \ell} = F_{j, \ell} \land \bar t$, blocking $t$ at $\ell$ on level $i$.
 \end{itemize}
@@ -765,7 +770,9 @@ Check the frames if there exists a global fixpoint position $i$ where
 F_{i-1, \ell} = F_{i, \ell}
 \end{equation*}
 for every location $\ell \in L \backslash \{l_E \}$. \\
-If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not reachable.  \\ 
+If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not reachable. \\
+
+\pagebreak
 
 To illustrate the lifted algorithm further consider the updated pseudo-code: \\ \\
 
@@ -821,7 +828,7 @@ We now want to verify whether $\ell_E$ is reachable using the lifted algorithm: 
 
 \textbf{1. Step: Check for 0-Counter-Example} \\
 Is $\ell_0 = \ell_E$?  \\
-No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ add $F_{0, \ell_0} = true$: \\ \\
+No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ adding $F_{0, \ell_0} = true$: \\ \\
 
 \begin{center}
 \begin{tabular}{c | c}
@@ -831,14 +838,13 @@ $\ell_0$ & $true$ \\
 $\ell_1$ & $false$ \\
 $\ell_2$ & $false$ \\
 $\ell_3$ & $false$ \\
-
 \end{tabular}
 \end{center}
 
 \hspace*{5cm}
 
 \textbf{2. Step: Next Level} \\
-Initialize new frames for level 1 as \texttt{true}: \\
+We initialize new frames for level 1 as \texttt{true}: \\
 
 \begin{center}
 \begin{tabular}{c | c |c}
@@ -854,18 +860,20 @@ $\ell_3$ & $false$ & $true$ \\
 
 \hspace*{3cm}
 
-To generate the initial proof-obligations, check $G$ and take the transitions where $\ell_E$ is the target. \\ There is one transition $(\ell_2, x = 1, \ell_E)$, that means we have to block $x = 1$ at $\ell_2$ on level 1 \\ $\rightarrow$ proof-obligation $(x = 1, \ell_2, 1)$ \\ \\ \\
+To generate the initial proof-obligations, we check $G$ and take the transitions where $\ell_E$ is the target. \\ We see, there is one transition $(\ell_2, x = 1, \ell_E)$, that means we have to block $x = 1$ at $\ell_2$ on level 1, resulting in the initial proof-obligation $(x = 1, \ell_2, 1).$ \\ \\ \par
 
 \textbf{3. Step: First Blocking Phase} \\
-We need to block the initial proof-obligation $(x = 1, \ell_2, 1)$. Let $\ell_{pre}$ be a predecessor of $\ell_2$, we need to check the formula 
-$F_{0, l_{pre}} \land T_{\ell_{pre} \rightarrow \ell_2} \land x' = 1$ for satisfiability. As there is only one predecessor $\ell_1$ we test:
-
+We need to block the initial proof-obligation $(x = 1, \ell_2, 1)$. Let $\ell_{pre}$ be a predecessor of $\ell_2$, we need to check the formula:
+\begin{equation}
+F_{0, l_{pre}} \land T_{\ell_{pre} \rightarrow \ell_2} \land x' = 1
+\end{equation}
+for satisfiability. As there is only one predecessor $\ell_1$ we test:
 \begin{equation*}
 \underbrace{false}_{F_{0, \ell_1}} \land \underbrace{x' := x + 1}_{T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
 \end{equation*}
 
 Which is unsatisfiable \\
-$\rightarrow$ Add $\overline{(x=1)} \equiv x \neq 1$ to $F_{0, \ell_2}$ and $F_{1, \ell_2}$, blocking $x=1$ at $\ell_2$ on level 1. \\
+We add $\overline{(x=1)} \equiv x \neq 1$ to $F_{0, \ell_2}$ and $F_{1, \ell_2}$, blocking $x=1$ at $\ell_2$ on level 1. \\
 
 \begin{center}
 \begin{tabular}{c | c |c}
@@ -882,7 +890,7 @@ $\ell_3$ & $false$ & $true$ \\
 \hspace*{3cm}
 
 
-Because there are no proof-obligations left we continue with the propagation-phase. \\ \\ \\
+Because there are no proof-obligations left we continue with the propagation-phase. \\ \\ \par
 
 \textbf{4. Step: First Propagation-Phase} \\
 Check if there exists a global fixpoint position $i$ where
@@ -890,11 +898,11 @@ Check if there exists a global fixpoint position $i$ where
 F_{i-1, \ell} = F_{i, \ell}
 \end{equation*}
 for every location $\ell \in L \backslash \{l_E \}$. \\
-$\rightarrow$ There is no such $i$, we continue with the next level. \\ \\ \\
+We see there is no such $i$, we continue with the next level. \\ \\ \par
 
 
 \textbf{5. Step: Next Level} \\
-Initialize new frames for level 2 as \texttt{true}: \\
+We initialize new frames for level 2 as \texttt{true}: \\
 \begin{center}
 \begin{tabular}{c | c |c|c}
 \backslashbox{location}{level} & 0 & 1 & 2\\
@@ -909,29 +917,29 @@ $\ell_3$ & $false$ & $true$ & $true$ \\
 
 \hspace*{3cm}
 
-Again generate the initial proof-obligation which is the same as before but on level 2 now: \\ $\rightarrow$ proof-obligation $(x = 1, \ell_2, 2)$ \\ \\ \\
+Again generate the initial proof-obligation which is the same as before but on level 2 now, we have initial proof-obligation $(x = 1, \ell_2, 2)$ \\ \\ \par
 
 \textbf{6. Step: Second-Blocking Phase} \\
 We need to block the proof-obligation $(x = 1, \ell_2, 2)$ by testing
 \begin{equation*}
 \underbrace{true}_{F_{1, \ell_1}} \land \underbrace{x' := x + 1}_ {T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
 \end{equation*}
-for satisfiability. Which is satisfiable with $ p = (x = 0)$. Because $p$ being also the weakest precondition, we generate a new proof-obligation $(p, \ell_1, 1)$, meaning we need to block $p$ at location $\ell_1$ on level 1. \\ \\
+for satisfiability. Which is satisfiable with $ p = (x = 0)$. Because $p$ being also the weakest precondition, we generate a new proof-obligation $(p, \ell_1, 1)$, meaning we need to block $p$ at location $\ell_1$ on level 1. \par
 Take the new proof-obligation $(x=0, \ell_1, 1)$ and check 
 \begin{equation*}
 \underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' := 0}_ {T_{\ell_{0} \rightarrow \ell_1}} \land \underbrace{x' = 0}_{p'}
 \end{equation*}
 for satisfiability. \\
 Which is valid, with \texttt{true} being the weakest precondition, we generate the new proof-obligation $(true, l_0, 0)$ and because this obligation is on level 0 we terminate, stating that $\ell_E$ is reachable by the counter-example trace:
-\begin{align*}
+\begin{equation*}
 \ell_0 \rightarrow \ell_1 \rightarrow \ell_2 \rightarrow \ell_E
-\end{align*}
+\end{equation*}
 
 
 \pagebreak
 
 \subsection{Unreachable Error State}
-To show a CFA with an unreachable error state consider $\mathcal{B} = (X, L, G, \ell_0, \ell_E)$ where
+To show a CFA with an unreachable error state consider $\mathcal{B} = (X, L, G, \ell_0, \ell_E),$ where
 \begin{itemize}
 \item $X = \{x, y\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_E\}$
@@ -979,11 +987,11 @@ with graph: \\
  \end{figure}
  \label{ex1} 
 
-We now want to check whether $\ell_E$ is reachable, using the lifted algorithm: \\ \\
+We now want to check whether $\ell_E$ is reachable, using the lifted algorithm: \par
 
 \textbf{1. Step: Check for 0-Counter-Example} \\
 Is $\ell_0 = \ell_E$? \\
-No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ add $F_{0, \ell_0} = true$. \\ \\
+No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ adding $F_{0, \ell_0} = true$. \\ \\
 
 \begin{center}
 \begin{tabular}{c | c}
@@ -1000,7 +1008,7 @@ $\ell_2$ & $false$ \\
 
 
 \textbf{2. Step: Next Level} \\
-Initialize new frames for level 1 as \texttt{true}: \\
+We initialize new frames for level 1 as \texttt{true}: \\
 
 \begin{center}
 \begin{tabular}{c | c |c}
@@ -1015,17 +1023,16 @@ $\ell_2$ & $false$ & $true$ \\
 
 
 
-Generate the initial proof-obligations: \\ There is only one transition leading to $\ell_E$, $(\ell_1, x \neq y, \ell_E)$ \\ $\rightarrow$ proof-obligation $(x \neq y, \ell_1, 1)$. \\ \\ \\
-
+We see there is only one transition leading to $\ell_E$, $(\ell_1, x \neq y, \ell_E)$. We get the initial proof-obligation $(x \neq y, \ell_1, 1)$. \\ \\ \par
 \textbf{3. Step: First Blocking Phase} \\
-To block the proof-obligation $(x \neq y, \ell_1, 1)$ check each predecessor of $\ell_1$:
+To block the initial proof-obligation $(x \neq y, \ell_1, 1)$ we check each predecessor of $\ell_1$:
 
 \begin{itemize}
 \item predecessor: $\ell_0$
 \begin{equation*}
 \underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' := 0 \land y' := x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
-Which is unsatisfiable \\$\rightarrow$ Add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$ and $F_{1, \ell_1}$: \\
+Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$ and $F_{1, \ell_1}$: \\
 
 \begin{center}
 \begin{tabular}{c | c |c}
@@ -1043,11 +1050,10 @@ $\ell_2$ & $false$ & $true$ \\
 \begin{equation*}
 \underbrace{false \land x = y}_{F_{0, \ell_1}} \land \underbrace{x' := x + 1 \land y' := y + 1'}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
-Which is unsatisfiable as well \\ $\rightarrow$ Because $x = y$ has already been added to $F_{0, \ell_1}$ and $F_{1, \ell_1}$ we move on.
+Which is unsatisfiable as well, but because $x = y$ has already been added to $F_{0, \ell_1}$ and $F_{1, \ell_1}$ we move on.
 
 \end{itemize}
- As there are no proof-obligations left, we continue with the first propagation-phase. \\ \\ \\
- 
+ As there are no proof-obligations left, we continue with the first propagation-phase. \\ \\ \par
  
 \textbf{4. Step: First Propagation-Phase} \\
 Check if there exists a global fixpoint position $i$ where
@@ -1055,10 +1061,10 @@ Check if there exists a global fixpoint position $i$ where
 F_{i-1, \ell} = F_{i, \ell}
 \end{equation*}
 for every location $\ell \in L \backslash \{l_E \}$. \\
-$\rightarrow$ There is no such $i$, we continue with the next level. \\ \\ \\
+We see there is no such $i$, we continue with the next level. \\ \\ \par
 
 \textbf{5. Step: Next Level} \\
-Initialize new frames for level 2 as \texttt{true}: \\
+We initialize new frames for level 2 as \texttt{true}: \\
 \begin{center}
 \begin{tabular}{c | c |c|c}
 \backslashbox{location}{level} & 0 & 1 & 2\\
@@ -1071,7 +1077,7 @@ $\ell_2$ & $false$ & $true$ & $true$ \\
 \end{center}
 \hspace*{3cm}
 
-Again generate the initial proof-obligation which is the same as before but on level 2 now: \\ $\rightarrow$ proof-obligation $(x \neq y, \ell_1, 2)$ \\ \\ \\
+Again we generate the initial proof-obligation which is the same as before but on level 2 now, we have the initial proof-obligation $(x \neq y, \ell_1, 2).$ \\ \\ \par
 
 
 \textbf{6. Step: Second Blocking Phase} \\
@@ -1082,7 +1088,7 @@ To block proof-obligation $(x \neq y, \ell_1, 2)$ we check the predecessors of $
 \begin{equation*}
 \underbrace{true}_{F_{1, \ell_0}} \land \underbrace{x' := 0 \land y' := x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
-Which is unsatisfiable \\ $\rightarrow$ Add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$, $F_{1, \ell_1}$ and $F_{2, \ell_1}$:
+Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$, $F_{1, \ell_1}$ and $F_{2, \ell_1}$:
 
 \begin{center}
 \begin{tabular}{c | c |c|c}
@@ -1100,11 +1106,10 @@ $\ell_2$ & $false$ & $true$ & $true$ \\
 \begin{equation*}
 \underbrace{true \land x = y}_{F_{1, \ell_1}} \land \underbrace{x' := x + 1 \land y' := y + 1}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
-Which is unsatisfiable as well \\ $\rightarrow$ Because $x = y$ has already been added to $F_{0, \ell_1}$, $F_{1, \ell_1}$, and $F_{2, \ell_1}$ we move on. \\
-
+Which is unsatisfiable as well, but because $x = y$ has already been added to $F_{0, \ell_1}$, $F_{1, \ell_1}$, and $F_{2, \ell_1}$ we move on.
 \end{itemize}
 
-As there are no proof-obligations left, we continue with the second propagation-phase \\ \\ \\
+As there are no proof-obligations left, we continue with the second propagation-phase \\ \\ \par
 
 \textbf{7. Step: Second Propagation-Phase} \\
 
@@ -1116,7 +1121,7 @@ $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ & $true$ \\
  \multicolumn{1}{c}{} &  \multicolumn{1}{c}{} & \multicolumn{2}{c}{\upbracefill} \\[-1ex]
- \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global fixpoint$}\\
+ \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global\ fixpoint$}\\
 
 
 
@@ -1131,10 +1136,8 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 
 As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
-\textsl{Ternary Simulation} cannot be used on first-order formulas making it impossible to use it to reduce lifted proof-obligations. \\ \\
+\textsl{Ternary Simulation} cannot be used on first-order formulas making it impossible to use it to reduce lifted proof-obligations. \par
 Different generalization techniques are possible:
-
-
 \subsection{Syntactical Analysis}
 Given a cube $c$ remove $a \subseteq c$, if no variable of $a$ is assigned in $T$ and
 \begin{itemize}
@@ -1147,10 +1150,10 @@ Given a cube $c$ remove $a \subseteq c$, if no variable of $a$ is assigned in $T
 The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating multiple proof-obligations for each individual predecessor state, the weakest precondition covers all of them in a single one. \\ \\
 
 
-\subsection{the Disjunctive Normal Form}
+\subsection{Disjunctive Normal Form}
 After transforming the weakest precondition into its disjunctive normal form, each cube can be considered as a separate smaller proof-obligation, saving time on larger formulas.\\ \\
 
-\subsection{Using Interpolation}
+\subsection{Interpolation}
 \textbf{TODO}
 We are using interpolation on frames and pos not on traces.
 
@@ -1174,7 +1177,8 @@ Ultimate program analysis framework, based on \textsl{plugins} that can be execu
 \end{itemize}
 
 \section{Implementation}
-To implement PDR in Ultimate we chose to implement a new library plugin \textsl{Library-PDR}, that is used in the generator plugin \textsl{traceabstraction}.
+To implement PDR in Ultimate we chose to implement a new library plugin \textsl{Library-PDR}, that is used in the generator plugin \textsl{traceabstraction}. \\
+\textbf{ToDo add specific details like how do we manage proof obligations, hoare triple checker etc}
 
 \section{Improvements}
 \subsection{Caching of Proof-Obligation Queue}
@@ -1192,35 +1196,35 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 
 %1.
-\filldraw (0,\textwidth/2) circle (2pt) node[align=center,   right] {A};
+\filldraw (0,\textwidth/2) circle (2pt) node[align=center, right] {Initial Obligation};
 
 %connection 1. and 2.
 \draw [thick, dotted, ->]
 (0,\textwidth/2) --(\textwidth/6 - 1mm,\textwidth/3 + 1mm);
 
 %2.
-\filldraw (\textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right] {B};
+\filldraw (\textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right=3mm] {1. Obligation: \\ generated by Initial};
 
 %connection 2. and 3.
 \draw [thick, dotted, ->]
 (\textwidth/6,\textwidth/3) --(\textwidth/3 - 1mm,\textwidth/6 + 1mm);
 
 %3.
-\filldraw (\textwidth/3,\textwidth/6) circle (2pt) node[align=center,   right] {C};
+\filldraw (\textwidth/3,\textwidth/6) circle (2pt) node[align=left,   left=3mm] {2. Obligation: \\ generated by 1.};
 
 %connection 3. and 4.
 \draw [thick, dotted, ->]
 (\textwidth/3,\textwidth/6) --(\textwidth/2 - 1mm,0 + 1mm);
 
 %4.
-\filldraw (\textwidth/2,0) circle (2pt) node[align=center,   below] {D};
+\filldraw (\textwidth/2,0) circle (2pt) node[align=center,   below] {Newest Obligation: \\ Generated by 2.};
 
 %4 and 3'
 \draw [->]
 (\textwidth/2,0 ) -- (\textwidth - \textwidth/3 - 1mm,\textwidth/6 - 1mm);
 
 %3.'
-\filldraw (\textwidth - \textwidth/3,\textwidth/6) circle (2pt) node[align=center,   right] {C'};
+\filldraw (\textwidth - \textwidth/3,\textwidth/6) circle (2pt) node[align=right,   right=3mm] {2. Obligation: \\ Blocked};
 
 
 %3' and 2'
@@ -1229,7 +1233,7 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 
 %2.'
-\filldraw (\textwidth - \textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right] {B'};
+\filldraw (\textwidth - \textwidth/6,\textwidth/3) circle (2pt) node[align=center, right=3mm] {1. Obligation: \\ Blocked};
 
 
 %connection 2.' and 1.'
@@ -1238,7 +1242,7 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 
 %1.'
-\filldraw (\textwidth,\textwidth/2) circle (2pt) node[align=center,   right] {A'};
+\filldraw (\textwidth,\textwidth/2) circle (2pt) node[align=center,   left=3mm] {Initial Obligation: \\ Blocked};
 
 
 % ranges
@@ -1247,15 +1251,17 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 \draw[thick, dotted] (\textwidth/2,0) -- (\textwidth/2,\textwidth/2) node[] {};
 
-\draw [decorate] (0, -1mm) -- node[below=3mm, align=center]{This chain of obligations \\ is always the same on each new level}(\textwidth/2 - 2mm, -1mm);
+\draw[] (0,0) -- (0,\textwidth/2) node[left=5mm] {};
+
+\draw [decorate] (0, -12mm) -- node[below=3mm, align=center]{This chain of obligations \\ is always the same \\ on each new level}(\textwidth/2 - 2mm, -12mm);
 
 \end{tikzpicture}
 \end{figure}
  
 
 \subsection{Ignoring Already Blocked Proof-Obligations}
-Besides changing the way the levels work in proof-obligations, we expanded them with a list of already seen and blocked queries to the SMT-solver. With that memoization in place, before we consider a new call to the SMT-solver we first check the given query whether we have already seen and deemed it unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of seen queries. \\ \par
-With this technique we save time on programs with a lot of proof-obligations for example in loops, where we see the same queries very often or when we have blocked the newest obligation and have to block the obligation chain back to the initial one.
+Besides changing the proof-obligations with regard to how their levels work, we also expanded them with a list of already seen and blocked SMT-solver queries. Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
+With this we save time on programs with a lot of proof-obligations for example in loops, where we see the same queries very often or when we have blocked the newest obligation and have to block the obligation chain back to the initial one.
 
 \subsection{Using Preconditions}
 As discussed in the improvements section of the lifted PDR algorithm using weakest preconditions is a really useful addition to the way proof-obligations are generated. In our implementation we instead use just the precondition, because "assume" edges have a reeeaaaallly funky weakest precondition that lead to diverse errors.
@@ -1267,9 +1273,20 @@ As discussed in the improvements section of the lifted PDR algorithm using weake
 
 \chapter{Future Work}
 \section{Implementation of Further Improvements}
-\subsection{Generalization}
-\subsection{Procedures}
+We have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.\\
 
+\subsection{Interpolation}
+Ultimate already supports ways of computing an interpolant for two given formulas. The idea is, that everytime a query to the SMT-solver is unsatisfiable we instead of adding the proof-obligation to the frames, we calculate an interpolant for the query and add that. \par
+Let $\ell$ and $\ell_{pre}$ be two locations where $\ell_{pre}$ is a predecessor of $\ell$, $F_{i - 1, \ell_{pre}}$ be a frame, $T_{\ell_{pre} \rightarrow \ell}$ be the transition from $\ell_{pre}$ to $\ell$, and $t'$ be a primed formula. \\
+To get an interpolant $I$ for that query we first need to define $A$ and $B$, we do that by dividing the query the following way:
+\begin{equation*}
+\underbrace{F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell}}_{A} \land \underbrace{t'}_B
+\end{equation*}
+Because we have proven the query unsatisfiable generating an interpolant is possible. \\
+Frames would consist only of interpolants, blocking a bigger state space.
+
+\subsection{Procedures}
+Ultimate aims to verify C programs, most of which contain procedure calls, which do not work with PDR yet because xyz
 
 
 \pagebreak

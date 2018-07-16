@@ -18,8 +18,8 @@
 \BOOKMARK [1][-]{section.4.4}{Possible Improvements}{chapter.4}% 18
 \BOOKMARK [2][-]{subsection.4.4.1}{Syntactical Analysis}{section.4.4}% 19
 \BOOKMARK [2][-]{subsection.4.4.2}{Weakest Precondition}{section.4.4}% 20
-\BOOKMARK [2][-]{subsection.4.4.3}{the Disjunctive Normal Form}{section.4.4}% 21
-\BOOKMARK [2][-]{subsection.4.4.4}{Using Interpolation}{section.4.4}% 22
+\BOOKMARK [2][-]{subsection.4.4.3}{Disjunctive Normal Form}{section.4.4}% 21
+\BOOKMARK [2][-]{subsection.4.4.4}{Interpolation}{section.4.4}% 22
 \BOOKMARK [0][-]{chapter.5}{Implementation in Ultimate}{}% 23
 \BOOKMARK [1][-]{section.5.1}{Introduction Ultimate}{chapter.5}% 24
 \BOOKMARK [1][-]{section.5.2}{Implementation}{chapter.5}% 25
@@ -30,5 +30,5 @@
 \BOOKMARK [0][-]{chapter.6}{Evaluation}{}% 30
 \BOOKMARK [0][-]{chapter.7}{Future Work}{}% 31
 \BOOKMARK [1][-]{section.7.1}{Implementation of Further Improvements}{chapter.7}% 32
-\BOOKMARK [2][-]{subsection.7.1.1}{Generalization}{section.7.1}% 33
+\BOOKMARK [2][-]{subsection.7.1.1}{Interpolation}{section.7.1}% 33
 \BOOKMARK [2][-]{subsection.7.1.2}{Procedures}{section.7.1}% 34
