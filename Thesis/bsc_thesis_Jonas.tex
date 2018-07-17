@@ -16,6 +16,8 @@
 \usepackage{array}
 \usepackage{caption}
 \usepackage{tkz-euclide}
+\usepackage{pgfplots} 
+
 
 
 \usepackage{tikz}
@@ -166,9 +168,12 @@ The goal of this Bachelor's Thesis is to implement a new analysis-plugin that us
 
 
 \chapter{Related Work}
-Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit level to first-order logic formulas used in software, for that there are two other important approaches: \par
+\textbf{How much Detail?} \\
+Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit level to first-order logic formulas used in software, for that there are three other approaches: \par
 
-The first ever approach of using PDR on first-order formulas came in 2012 by Cimatti and Griggio in \cite{Zitat04} who proposed exploiting the partitioning of a program's state space, by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+The first approach of using PDR on software is rather naive, Welp et al propose in \cite{Welp} a way to encode variables as bitvectors and then using the unmodified PDR on that encoding. 
+
+The first ever approach of using PDR on first-order formulas came in 2012 by Cimatti and Griggio in \cite{Zitat04} who proposed exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
 
 Another possible way is proposed by Hoder and Bjørner in \cite{GeneralizedIc3} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproved.
 
@@ -628,6 +633,7 @@ Ternary logic extends the binary logic by introducing a new valuation: $X$, call
 \end{align*}
 To remove state variables, set one variable at a time to $X$ and try to transition to a next state using the transition relation, the variable is needed if $X$ propagates into the next state, if it does not remove the variable from the proof-obligation. \\ \\
 Reconsider the prior \hyperref[ex2]{example's} first blocking phase resulting in the proof-obligation$(q, 1)$ with bad state $q = x_1 \land \bar x_2 \land \bar x_3$, we now want to reduce that proof-obligation using ternary simulation: \par
+
 
 First of all, the transition formula:
 \begin{equation*}
@@ -1162,6 +1168,7 @@ We are using interpolation on frames and pos not on traces.
 
 \chapter{Implementation in Ultimate}
 \section{Introduction Ultimate}
+\textbf{This good?} \\
 Ultimate program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
 \begin{itemize}
 \item Source plugins define a file-to-model transformation
@@ -1182,49 +1189,56 @@ To implement PDR in Ultimate we chose to implement a new library plugin \textsl{
 
 \section{Improvements}
 \subsection{Caching of Proof-Obligation Queue}
-Because of the backwards-search nature of PDR, we always start with the initial proof-obligation and making our way back to the latest blocked proof-obligation iteratively. Most of the proof-obligations that are generated have already been seen. For example, let i be the current level, we have seen and blocked the initial proof-obligation i times, let there be a satisfying assignment of the initial proof-obligation meaning we have a follow up proof-obligation on level i-1, which we have also seen i-1 times. \\
-Our idea was to cache that proof-obligation queue and always start a new level not with the initial proof-obligation but with the newest generated one, so that we save the whole chain of the previous obligations as we always end up at the newest one. For that we introduced a global level and changed the levels of each proof-obligation to be subtracted from the global level, with that every proof-obligation is at its corresponding level, for example, the initial proof-obligation has its local level 0, so that global level - 0 = global level, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that global level - 1 = global level - 1, meaning that this proof-obligation comes immediately after the initial one. \\
-Something that cannot be saved is the blocking of the previous proof-obligations, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ \\
+We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked, we then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
+Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
+%For example, let $i$ be the current level, we have seen and blocked the initial proof-obligation $i$ times, its successor obligation $i-1$ times and so on. \par
+Our idea was to cache the proof-obligation queue and always start a new level with the latest generated one, so we save the process of generating already known obligations. \par For that we introduced a \textsl{global level} variable serving as the level counter, and changed the levels of each proof-obligation to be \textsl{subtracted} from the global level, with that every proof-obligation is at its corresponding level of generation. \par For example, the initial proof-obligation has its local level 0, so that $global\ level - 0 = global\ level$, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that global level - 1 means that this proof-obligation comes immediately after the initial one. \par
+Something that cannot be saved is blocking of the previous proof-obligation chain, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ 
+To illustrate this technique further, consider the following graphic: \\
 
 \textbf{ToDo Graphic}
 
 \begin{figure}[H]
+\hspace*{-10mm}
 \begin{tikzpicture} [decoration={brace,mirror,amplitude=7}]
 
+
+\fill[black!20!white] (0,0) -- (0,\textwidth/2) -- (\textwidth/2,\textwidth/2) -- (\textwidth/2, 0) -- cycle;
+
 % horizontal axis
-\draw[-] (0,0) -- (\textwidth,0) node[] {};
+\draw[-] (0,0) -- (\textwidth,0) node[below=3mm] {};
 
 
 %1.
-\filldraw (0,\textwidth/2) circle (2pt) node[align=center, right] {Initial Obligation};
+\filldraw (0,\textwidth/2) circle (3pt) node[align=right, below right, label={[xshift=2mm, yshift=1mm, below right]Initial Obligation}] {};
 
 %connection 1. and 2.
 \draw [thick, dotted, ->]
 (0,\textwidth/2) --(\textwidth/6 - 1mm,\textwidth/3 + 1mm);
 
 %2.
-\filldraw (\textwidth/6,\textwidth/3) circle (2pt) node[align=center,   right=3mm] {1. Obligation: \\ generated by Initial};
+\filldraw (\textwidth/6,\textwidth/3) circle (3pt) node[align=center,   right=3mm] {1. Obligation: \\ generated by Initial};
 
 %connection 2. and 3.
 \draw [thick, dotted, ->]
 (\textwidth/6,\textwidth/3) --(\textwidth/3 - 1mm,\textwidth/6 + 1mm);
 
 %3.
-\filldraw (\textwidth/3,\textwidth/6) circle (2pt) node[align=left,   left=3mm] {2. Obligation: \\ generated by 1.};
+\filldraw (\textwidth/3,\textwidth/6) circle (3pt) node[align=left,   left=3mm] {2. Obligation: \\ generated by 1.};
 
 %connection 3. and 4.
 \draw [thick, dotted, ->]
 (\textwidth/3,\textwidth/6) --(\textwidth/2 - 1mm,0 + 1mm);
 
 %4.
-\filldraw (\textwidth/2,0) circle (2pt) node[align=center,   below] {Newest Obligation: \\ Generated by 2.};
+\filldraw (\textwidth/2,0) circle (3pt) node[align=center,   below] {Newest Obligation: \\ Generated by 2.};
 
 %4 and 3'
 \draw [->]
 (\textwidth/2,0 ) -- (\textwidth - \textwidth/3 - 1mm,\textwidth/6 - 1mm);
 
 %3.'
-\filldraw (\textwidth - \textwidth/3,\textwidth/6) circle (2pt) node[align=right,   right=3mm] {2. Obligation: \\ Blocked};
+\filldraw (\textwidth - \textwidth/3,\textwidth/6) circle (3pt) node[align=right,   right=3mm] {2. Obligation: \\ Blocked};
 
 
 %3' and 2'
@@ -1233,7 +1247,7 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 
 %2.'
-\filldraw (\textwidth - \textwidth/6,\textwidth/3) circle (2pt) node[align=center, right=3mm] {1. Obligation: \\ Blocked};
+\filldraw (\textwidth - \textwidth/6,\textwidth/3) circle (3pt) node[align=center, left=3mm] {1. Obligation: \\ Blocked};
 
 
 %connection 2.' and 1.'
@@ -1242,7 +1256,7 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 
 %1.'
-\filldraw (\textwidth,\textwidth/2) circle (2pt) node[align=center,   left=3mm] {Initial Obligation: \\ Blocked};
+\filldraw (\textwidth,\textwidth/2) circle (3pt) node[align=center,   left=3mm] {Initial Obligation: \\ Blocked};
 
 
 % ranges
@@ -1251,20 +1265,25 @@ Something that cannot be saved is the blocking of the previous proof-obligations
 
 \draw[thick, dotted] (\textwidth/2,0) -- (\textwidth/2,\textwidth/2) node[] {};
 
-\draw[] (0,0) -- (0,\textwidth/2) node[left=5mm] {};
 
-\draw [decorate] (0, -12mm) -- node[below=3mm, align=center]{This chain of obligations \\ is always the same \\ on each new level}(\textwidth/2 - 2mm, -12mm);
+
+% Vertical axis
+%\draw[] (0,0) -- (0,\textwidth/2) node[left=5mm] {};
+% \draw[] (\textwidth,0) -- (\textwidth,\textwidth/2) node[left=5mm] {};
+
+\draw [decorate] (\textwidth/2, \textwidth/2 + 3mm) -- node[above=3mm, align=center]{This chain of obligations \\ is always the same \\ on each new level} (0, \textwidth/2 + 3mm);
 
 \end{tikzpicture}
 \end{figure}
  
 
 \subsection{Ignoring Already Blocked Proof-Obligations}
-Besides changing the proof-obligations with regard to how their levels work, we also expanded them with a list of already seen and blocked SMT-solver queries. Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
+\textbf{ToDo more details} \\
+Besides changing proof-obligations's levels, we also expanded them with a list of already seen and blocked SMT-solver queries. Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
 With this we save time on programs with a lot of proof-obligations for example in loops, where we see the same queries very often or when we have blocked the newest obligation and have to block the obligation chain back to the initial one.
 
 \subsection{Using Preconditions}
-As discussed in the improvements section of the lifted PDR algorithm using weakest preconditions is a really useful addition to the way proof-obligations are generated. In our implementation we instead use just the precondition, because "assume" edges have a reeeaaaallly funky weakest precondition that lead to diverse errors.
+As discussed in the improvements section of the lifted PDR algorithm, using weakest preconditions is a really useful addition to the way proof-obligations are generated. In our implementation we instead use just the precondition, because "assume" edges have a reeeaaaallly funky weakest precondition that lead to diverse errors.
 \textbf{ToDo: A bit nicer}
 
 
@@ -1273,17 +1292,16 @@ As discussed in the improvements section of the lifted PDR algorithm using weake
 
 \chapter{Future Work}
 \section{Implementation of Further Improvements}
-We have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.\\
+As shown before, we have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.
 
 \subsection{Interpolation}
-Ultimate already supports ways of computing an interpolant for two given formulas. The idea is, that everytime a query to the SMT-solver is unsatisfiable we instead of adding the proof-obligation to the frames, we calculate an interpolant for the query and add that. \par
+Ultimate already supports ways of computing an interpolant for two given formulas. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
 Let $\ell$ and $\ell_{pre}$ be two locations where $\ell_{pre}$ is a predecessor of $\ell$, $F_{i - 1, \ell_{pre}}$ be a frame, $T_{\ell_{pre} \rightarrow \ell}$ be the transition from $\ell_{pre}$ to $\ell$, and $t'$ be a primed formula. \\
 To get an interpolant $I$ for that query we first need to define $A$ and $B$, we do that by dividing the query the following way:
 \begin{equation*}
 \underbrace{F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell}}_{A} \land \underbrace{t'}_B
 \end{equation*}
 Because we have proven the query unsatisfiable generating an interpolant is possible. \\
-Frames would consist only of interpolants, blocking a bigger state space.
 
 \subsection{Procedures}
 Ultimate aims to verify C programs, most of which contain procedure calls, which do not work with PDR yet because xyz
@@ -1300,6 +1318,9 @@ Ultimate aims to verify C programs, most of which contain procedure calls, which
 \bibitem{cav} \url{https://fmv.jku.at/hwmcc10/results.html}
 
 \bibitem{Zitat02} \textsc{Ultimate}: \url{https://ultimate.informatik.uni-freiburg.de}
+
+\bibitem{Welp} Tobias Welp and Andreas Kuehlmann. 2013. QF BV model checking with property directed reachability. In Proceedings of the Conference on Design, Automation and Test in Europe (DATE '13). EDA Consortium, San Jose, CA, USA, 791-796.
+
 
 \bibitem{Zitat03} N. Een, A. Mishchenko and R. Brayton, "Efficient implementation of property directed reachability," 2011 Formal Methods in Computer-Aided Design (FMCAD), Austin, TX, 2011, pp. 125-134.
 Reachability"
