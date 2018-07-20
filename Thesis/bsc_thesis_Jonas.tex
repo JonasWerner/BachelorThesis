@@ -179,13 +179,13 @@ foo bar aber auf deutsch
 \mainmatter
 
 \chapter{Introduction}
-SAT-based model-checking is a useful technique for both software and hardware verification. Most modern model-checkers are based on interpolation \cite{Zitat00}. 
-Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{Zitat01} called \texttt{IC3}.
+SAT-based model-checking is a useful technique for both software and hardware verification. Most modern model-checkers are based on interpolation \cite{DBLP:conf/cav/VizelG14}. 
+Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}.
 Because it was so new, it came as a surprise that it won third place in the hardware
 model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is not based on interpolation but on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproved using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \\ \par
 \textsc{Ultimate} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, trans-
 forming programs from one representation to another, or analyse programs.
- \textsc{Ultimate} already has analysis-plugins using different model-checking techniques like trace abstraction \cite{Zitat06} or lazy interpolation \cite{Zitat07}.
+ \textsc{Ultimate} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
 The goal of this Bachelor's Thesis is to implement a new analysis-plugin that uses PDR on software in \textsc{Ultimate} and to compare it with the other existing techniques.
 
 
@@ -193,11 +193,11 @@ The goal of this Bachelor's Thesis is to implement a new analysis-plugin that us
 \textbf{How much Detail?} \\
 Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit level to first-order logic formulas used in software, for that there are three other approaches: \par
 
-The first approach of using PDR on software is rather naive, Welp et al propose in \cite{Welp} a way to encode variables as bitvectors and then using the unmodified PDR on that encoding. 
+The first approach of using PDR on software is rather naive, Welp et al. propose a way to encode variables as bitvectors and then using the unmodified PDR on that encoding~\cite{DBLP:conf/date/WelpK13}. 
 
-The first ever approach of using PDR on first-order formulas came in 2012 by Cimatti and Griggio in \cite{Zitat04} who proposed exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+The first ever approach of using PDR on first-order formulas came in 2012 by Cimatti and Griggio~\cite{DBLP:conf/cav/CimattiG12} who proposed exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
 
-Another possible way is proposed by Hoder and Bjørner in \cite{GeneralizedIc3} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproved.
+Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproved.
 
 
 
@@ -685,7 +685,7 @@ Because there is no clause being unknown, $x_3$ can be removed from the proof-ob
 
 
 \chapter{PDR as Software Checker} \label{sec3}
-We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described by Lange et al. \cite{Zitat05}. \\ To use PDR on software we first need some new definitions and other preliminaries.
+We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described by Lange et al. ~\cite{DBLP:conf/fmcad/0001NN15}. \\ To use PDR on software we first need some new definitions and other preliminaries.
 
 \section{Preliminaries}
 A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a tuple, consisting of a finite set of variables $X$, a finite set of locations $L$, a finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, an initial location $\ell_0 \in L$, and an error location $\ell_E \in L$.\par
@@ -1329,34 +1329,8 @@ Because we have proven the query unsatisfiable generating an interpolant is poss
 Ultimate aims to verify C programs, most of which contain procedure calls, which do not work with PDR yet because xyz
 
 
-\pagebreak
+\bibliographystyle{plain}
+\bibliography{bib}
 
-\begin{thebibliography}{999}
-
-\bibitem{Zitat00} Vizel Y., Gurfinkel A. (2014) Interpolating Property Directed Reachability. In: Biere A., Bloem R. (eds) Computer Aided Verification. CAV 2014. Lecture Notes in Computer Science, vol 8559. Springer, Cham
-
-\bibitem{Zitat01} Bradley A.R. (2011) SAT-Based Model Checking without Unrolling. In: Jhala R., Schmidt D. (eds) Verification, Model Checking, and Abstract Interpretation. VMCAI 2011. Lecture Notes in Computer Science, vol 6538. Springer, Berlin, Heidelberg
-
-\bibitem{cav} \url{https://fmv.jku.at/hwmcc10/results.html}
-
-\bibitem{Zitat02} \textsc{Ultimate}: \url{https://ultimate.informatik.uni-freiburg.de}
-
-\bibitem{Welp} Tobias Welp and Andreas Kuehlmann. 2013. QF BV model checking with property directed reachability. In Proceedings of the Conference on Design, Automation and Test in Europe (DATE '13). EDA Consortium, San Jose, CA, USA, 791-796.
-
-
-\bibitem{Zitat03} N. Een, A. Mishchenko and R. Brayton, "Efficient implementation of property directed reachability," 2011 Formal Methods in Computer-Aided Design (FMCAD), Austin, TX, 2011, pp. 125-134.
-Reachability"
-
-\bibitem{Zitat04} Cimatti A., Griggio A. (2012) Software Model Checking via IC3. In: Madhusudan P., Seshia S.A. (eds) Computer Aided Verification. CAV 2012. Lecture Notes in Computer Science, vol 7358. Springer, Berlin, Heidelberg
-
-\bibitem{GeneralizedIc3} Hoder K., Bjørner N. (2012) Generalized Property Directed Reachability. In: Cimatti A., Sebastiani R. (eds) Theory and Applications of Satisfiability Testing – SAT 2012. SAT 2012. Lecture Notes in Computer Science, vol 7317. Springer, Berlin, Heidelberg
-
-\bibitem{Zitat05} T. Lange, M. R. Neuhauber and T. Noll, "IC3 software model checking on control flow automata," 2015 Formal Methods in Computer-Aided Design (FMCAD), Austin, TX, 2015, pp. 97-104.
-
-\bibitem{Zitat06} Heizmann M., Hoenicke J., Podelski A. (2013) Software Model Checking for People Who Love Automata. In: Sharygina N., Veith H. (eds) Computer Aided Verification. CAV 2013. Lecture Notes in Computer Science, vol 8044. Springer, Berlin, Heidelberg
-
-\bibitem{Zitat07} Thomas A. Henzinger, Ranjit Jhala, Rupak Majumdar, and Grégoire Sutre. 2002. Lazy abstraction. In Proceedings of the 29th ACM SIGPLAN-SIGACT symposium on Principles of programming languages (POPL '02). ACM, New York, NY, USA, 58-70
-
-\end{thebibliography}
 
 \end{document}
