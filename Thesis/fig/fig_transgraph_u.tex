@@ -1,57 +1,106 @@
 \begin{tikzpicture}[%
-    ->,
-    >=stealth', shorten >=1pt, auto,
-    node distance=9cm, scale=1, 
-    transform shape, align=center,    
-    state/.style={%
-      circle,
-      minimum size=3.5cm,
-      scale=0.7,
-      draw
-    }
-  ]
-    \node[initial, state](1){$\bar x_1 \land \bar x_2 \land \bar x_3$};
-    
-    \node[state] (2) [above right of=1] {$ x_1 \land \bar x_2 \land \bar x_3$};
-    
-    \node[state] (3) [below right of=1] {$ \bar x_1 \land \bar x_2 \land \bar x_3$};
-    
-    \node[state, node distance=6.3639610306789275cm] (4) [right of=2] {$ x_1 \land x_2 \land \bar x_3$};
-    
-    \node[state, node distance=6.3639610306789275cm] (5) [right of=3] {$ \bar x_1 \land x_2 \land x_3$};
-    
-    \node[state] (6) [below right of=4] {$ x_1 \land x_2 \land x_3$};
-    
-    \node[state, node distance=6.3639610306789275cm] (7) [below of=2] {$\bar x_1 \land x_2 \land \bar x_3$};
-    
-    \node[state, node distance=6.3639610306789275cm] (8) [below of=4] {$x_1 \land \bar x_2 \land x_3$};
-    
+scale=0.6,%
+trans/.style={->,>=stealth},%
+smallnode/.style={inner sep=1.4},%
+node distance=2.5cm,%
+]
+\arraycolsep=1.4pt
 
- 	  \path (1) edge node {} (2)
- 	  		(1) edge [loop above] node {} (1)
- 	  
- 	  		(2) edge node {} (4)
- 	  		(2) edge node {} (7)
- 	  		
-			(3) edge node {} (1)
- 	  		(3) edge [bend left] node {} (2) 	  		
- 	  		
- 	  		(4) edge node {} (6)
- 	  		(4) edge [bend left] node {} (5)
- 	  		
- 	  		(5) edge node {} (3)
- 	  		(5) edge node {} (8)
- 	  		
- 	  		(6) edge node {} (5)
- 	  		(6) edge [loop above] node {} (6)
- 	  		
- 	  		(7) edge node {} (3)
- 	  		(7) edge [bend left] node {} (8)
- 	  		
- 	  		(8) edge node {} (4)
- 	  		(8) edge [bend left] node {} (7)
- 	  ;
+\node[circle,draw,smallnode,initial] (node0) [draw]  
+{$
+\begin{array}{rl}
+\bar x_1 & \land \\
+\bar x_2 & \land \\
+\bar x_3 & \\
+\end{array}
+$};
 
-    
-);
-  \end{tikzpicture}
+\node[circle,draw,smallnode] (node1) [draw,right of=node0] 
+{$
+\begin{array}{rl}
+\bar x_1 & \land \\
+     x_2 & \land \\
+\bar x_3 & \\ 
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node2) [draw, above of=node1]   
+{$
+\begin{array}{rl}
+     x_1 & \land \\
+\bar x_2 & \land \\
+\bar x_3 & \\ 
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node3) [draw, below of=node1]  
+{$
+\begin{array}{rl}
+\bar x_1 & \land \\
+\bar x_2 & \land \\
+\bar x_3 & \\
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node4) [draw, right of=node2]    
+{$
+\begin{array}{rl}
+     x_1 & \land \\
+     x_2 & \land \\
+\bar x_3 & \\
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node5) [draw, right of=node3] 
+{$
+\begin{array}{rl}
+\bar x_1 & \land \\
+     x_2 & \land \\
+     x_3 & \\
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node6) [draw,right of=node1] 
+{$
+\begin{array}{rl}
+     x_1 & \land \\
+\bar x_2 & \land \\
+     x_3 & \\
+\end{array}
+$};
+
+\node[circle,draw,smallnode] (node7) [draw,right of=node6] 
+{$
+\begin{array}{rl}
+     x_1 & \land \\
+     x_2 & \land \\
+     x_3 & \\
+\end{array}
+$};
+
+
+\draw[trans,loop above] (node0) to node {} (node0);
+\draw[trans] (node0) to node {} (node2);
+
+\draw[trans] (node1) to node {} (node3);
+\draw[trans,bend left] (node1) to node {} (node6);
+
+\draw[trans] (node2) to node {} (node4);
+\draw[trans] (node2) to node {} (node1);
+
+\draw[trans] (node3) to node {} (node0);
+\draw[trans, bend left] (node3) to node {} (node2);
+
+\draw[trans] (node4) to node {} (node7);
+\draw[trans,bend left] (node4) to node {} (node5);
+
+\draw[trans] (node5) to node {} (node3);
+\draw[trans] (node5) to node {} (node6);
+
+\draw[trans] (node6) to node {} (node4);
+\draw[trans,bend left] (node6) to node {} (node1);
+
+\draw[trans] (node7) to node {} (node5);
+\draw[trans,loop above] (node7) to node {} (node7);
+
+\end{tikzpicture}         
