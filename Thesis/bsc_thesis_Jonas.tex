@@ -1,5 +1,6 @@
 \documentclass[11pt, a4paper, BCOR=10mm, ngerman, oneside]{scrbook}
 \usepackage{graphicx}
+
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref} 
 \usepackage{amsmath}
@@ -13,7 +14,19 @@
 \usepackage[noend]{algpseudocode}
 \usepackage{color}
 \usepackage{pdflscape}
+%%% Tables 
 \usepackage{array}
+\usepackage{tabu}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
+% For tables with automatic width of columns
+% even in "p" columns.
+\usepackage{tabulary}
+% table columns aligned on decimal point
+\usepackage{dcolumn}
+\usepackage{diagbox}
+
 \usepackage{caption}
 \usepackage{tkz-euclide}
 \usepackage{pgfplots} 
@@ -858,15 +871,20 @@ We now want to verify whether $\ell_E$ is reachable using the lifted algorithm: 
 Is $\ell_0 = \ell_E$?  \\
 No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ adding $F_{0, \ell_0} = true$: \\ \\
 
+\setlength\tabcolsep{0.35em}
 \begin{center}
-\begin{tabular}{c | c}
-\backslashbox{location}{level} & 0 \\
-\hline
+\begin{tabu}{cc}
+\toprule
+ 	     & level \\
+\cmidrule(lr){2-2}
+location & 0 \\
+\cmidrule{1-2}
 $\ell_0$ & $true$ \\
 $\ell_1$ & $false$ \\
-$\ell_2$ & $false$ \\
+$\ell_2$ & $false$ \\ 
 $\ell_3$ & $false$ \\
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
 
 \hspace*{5cm}
@@ -875,15 +893,18 @@ $\ell_3$ & $false$ \\
 We initialize new frames for level 1 as \texttt{true}: \\
 
 \begin{center}
-\begin{tabular}{c | c |c}
-\backslashbox{location}{level} & 0 & 1\\
-\hline
+\begin{tabu}{ccc}
+\toprule
+ 	     & \multicolumn{2}{c}{level} \\
+\cmidrule(lr){2-3}
+location & 0 & 1 \\
+\cmidrule{1-3}
 $\ell_0$ & $true$ & $true$ \\
 $\ell_1$ & $false$ & $true$ \\
 $\ell_2$ & $false$ & $true$ \\
 $\ell_3$ & $false$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
 
 \hspace*{3cm}
@@ -1150,8 +1171,6 @@ $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ & $true$ \\
  \multicolumn{1}{c}{} &  \multicolumn{1}{c}{} & \multicolumn{2}{c}{\upbracefill} \\[-1ex]
  \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global\ fixpoint$}\\
-
-
 
 \end{tabular}
 \end{center}
