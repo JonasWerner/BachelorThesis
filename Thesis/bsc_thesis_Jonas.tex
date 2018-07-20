@@ -1218,7 +1218,7 @@ Our idea was to cache the proof-obligation queue and always start a new level wi
 Something that cannot be saved is blocking of the previous proof-obligation chain, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ 
 To illustrate this technique further, consider the following graphic: \\
 
-\textbf{ToDo Graphic}
+\textbf{ToDo Graphic~\ref{fig:the_nice_figure}}
 
 \begin{figure}[H]
 \hspace*{-10mm}
@@ -1296,6 +1296,8 @@ To illustrate this technique further, consider the following graphic: \\
 \draw [decorate] (\textwidth/2, \textwidth/2 + 3mm) -- node[above=3mm, align=center]{This chain of obligations \\ is always the same \\ on each new level} (0, \textwidth/2 + 3mm);
 
 \end{tikzpicture}
+\caption{A nice caption ending in a period.}
+\label{fig:the_nice_figure}
 \end{figure}
  
 
