@@ -1,5 +1,5 @@
 %
-\documentclass[11pt, a4paper, BCOR=10mm, ngerman, oneside]{scrbook}
+\documentclass[11pt, a4paper, BCOR=10mm, ngerman]{scrbook}
 \usepackage{graphicx}
 \usepackage{lmodern}
 \usepackage{anyfontsize}
@@ -9,7 +9,6 @@
 \usepackage[parfill]{parskip}
 \usepackage{listings}
 \usepackage{float}
-\usepackage{slashbox}
 \usepackage{pgfgantt}
 \usepackage{wrapfig}
 \usepackage{algorithm}
@@ -28,7 +27,6 @@
 % table columns aligned on decimal point
 \usepackage{dcolumn}
 \usepackage{diagbox}
-
 \usepackage{caption}
 \usepackage{tkz-euclide}
 \usepackage{pgfplots} 
@@ -37,6 +35,7 @@
 \usetikzlibrary{positioning,shapes.geometric, arrows,automata, decorations.pathreplacing}
 \usepackage{pgf}
 \usepackage{slantsc}
+\usepackage{geometry}
 \sloppy
 
 \usepackage[english]{babel}
@@ -80,7 +79,6 @@
   {0.5em}
   {}
 
-
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
@@ -103,6 +101,7 @@
   tabsize=3
 }
 
+\raggedbottom
 
 
 \makeatletter
@@ -117,7 +116,6 @@
 \overfullrule=1mm
 
 \begin{document}
-
 \begin{titlepage}
 \begin{center}
 
@@ -209,16 +207,13 @@ The goal of this Bachelor's Thesis is to implement a new analysis-plugin that us
 
 Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit-level to first-order logic formulas used in software. \par We base our work on the approach by Lange et al \cite{DBLP:conf/fmcad/0001NN15} who propose a true lifting of \texttt{IC3} from hardware to software by fully exploiting the control flow of a given program, meaning the control flow graph is not altered in any way. \texttt{IC3} is being adjusted by using an SMT-solver instead of a SAT-solver, additional information is no longer being used globally over all states, every program location has its own local information, and if there exists an error location each iteration of the algorithm will have to prove that it is unreachable. \par
 
-There are however three other approaches:
+There are however three other possible approaches:
 
 The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introducing a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
 
-In 2012 was the first ever approach of using PDR on first-order formulae devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
-
-
-
 
 
 
@@ -227,7 +222,9 @@ Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/Hod
 \label{PDR}
 In the following we will describe how IC3 and to that extend PDR works as hardware \ -checker,
 because hardware only uses bits, every variable will be boolean. 
-\section{Preliminaries}
+
+
+\section{Preliminaries} \vspace{-5mm}
 First some preliminary definitions and notations:  \par
 A \textsl{literal} is a variable or its negation, e.g., $x \text{ or } \bar y$ \\
 A \textsl{clause} is a disjunction of literals, e.g., $x \lor \bar y$ \\
@@ -598,7 +595,7 @@ The algorithm terminates returning that the property always holds and
  being an inductive invariant.
 
 \section{Possible Improvements}
-The most time consuming part of the algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small:
+The most time consuming part of the algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small.
 
 \subsection{Generalization of States}
 Blocking one state at a time is ineffective.  \\
@@ -643,7 +640,7 @@ Because there is no clause being unknown, $x_3$ can be removed from the proof-ob
 
 
 \chapter{PDR as Software Checker} \label{sec3}
-We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described by Lange et al. ~\cite{DBLP:conf/fmcad/0001NN15}. \\ To use PDR on software we first need some new definitions and other preliminaries.
+We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. There are multiple ways to do that, the following approach is based on the technique described by Lange et al ~\cite{DBLP:conf/fmcad/0001NN15}. \par To use PDR on software we first need some new definitions and other preliminaries.
 
 \section{Preliminaries}
 A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a tuple, consisting of a finite set of variables $X$, a finite set of locations $L$, a finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, an initial location $\ell_0 \in L$, and an error location $\ell_E \in L$.\par
@@ -688,7 +685,7 @@ smallnode/.style={inner sep=1.4}
   \end{tikzpicture}
   \caption{Graph of $\mathcal{A}$.}
  \end{figure}
- \label{ex1} 
+ \label{ex7} 
 
 The transition formula $T_{\ell_1 \rightarrow \ell_2}$ from one location $\ell_1$ to another location $\ell_2$ is defined as:
 \begin{equation*}
@@ -738,8 +735,7 @@ F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell} \land t'
 \end{equation*}
 is satisfiable.
 \begin{itemize}
-\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, generate a new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$.
-
+\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, generate a new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$ with regard to $T_{\ell_{pre} \rightarrow \ell}$.
 \item If the formula is \textsl{unsatisfiable}, strengthen each frame $F_{j, \ell}$, $j \leq i$ with $\bar t$, meaning $F_{j, \ell} = F_{j, \ell} \land \bar t$, blocking $t$ at $\ell$ on level $i$.
 \end{itemize}
 
@@ -757,7 +753,7 @@ If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not 
 
 To illustrate the lifted algorithm further consider the updated pseudo-code: \\ \\
 
-\begin{figure}
+\begin{figure}[H]
 \begin{algorithm}[H] 
 
 \begin{algorithmic}[1]
@@ -801,7 +797,7 @@ To illustrate the lifted algorithm further consider the updated pseudo-code: \\ 
 
 \section{Example}
 \subsection{Reachable Error State}
-To show an application of the lifted algorithm reconsider the example from earlier, we have CFA  $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ where
+To show an application of the lifted algorithm reconsider the example in \hyperref[ex7]{Figure 4.1}, we have CFG  $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
 \begin{itemize}
 \item $X = \{x\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_3, \ell_E\}$
@@ -1172,10 +1168,10 @@ Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An in
 \begin{itemize}
 \item $A \Rightarrow I$
 \item $I \land B$ is unsatisfiable
-\item $I$ consists only of variables found in $A \cup B$
+\item $I$ consists only of variables found in $A \cap B$
 \end{itemize}
 
-We are using interpolation on frames and pos not on traces.
+\textbf{still ToDo}
 
 \pagebreak
 
@@ -1206,7 +1202,7 @@ To implement PDR in Ultimate we chose to implement a new library plugin \textsl{
 We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked, we then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
 Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
 %For example, let $i$ be the current level, we have seen and blocked the initial proof-obligation $i$ times, its successor obligation $i-1$ times and so on. \par
-Our idea was to cache the proof-obligation queue and always start a new level with the latest generated one, so we save the process of generating already known obligations. \par For that we introduced a \textsl{global level} variable serving as the level counter, and changed the levels of each proof-obligation to be \textsl{subtracted} from the global level, with that every proof-obligation is at its corresponding level of generation. \par For example, the initial proof-obligation has its local level 0, so that $global\ level - 0 = global\ level$, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that global level - 1 means that this proof-obligation comes immediately after the initial one. \par
+Our idea was to cache the proof-obligation queue and always start a new level with the latest generated one, so we save the process of generating already known obligations. \par For that we introduced a \textsl{global level} variable serving as the level counter, and changed the levels of each proof-obligation to be \textsl{subtracted} from the global level, resulting in a relative level = $global\ level - local\ level$, with that every proof-obligation is at its corresponding level of generation. \par For example, the initial proof-obligation has its local level 0, so that $relative\ level = global\ level - 0 = global\ level$, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that relative level = global level - 1 means that this proof-obligation comes immediately after the initial one. \par
 Something that cannot be saved is blocking of the previous proof-obligation chain, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ 
 To illustrate this technique further, consider the following graphic: \\
 
@@ -1214,19 +1210,19 @@ To illustrate this technique further, consider the following graphic: \\
 
 \begin{figure}[H]
 \centering
-\resizebox{0.9\textwidth}{!}{\input{fig/fig_obligations}}
+\resizebox{\textwidth}{!}{\input{fig/fig_obligations}}
 \caption{Chain of Proof-Obligation Generation.}
 \label{fig:the_nice_figure}
 \end{figure}
  
 
 \subsection{Ignoring Already Blocked Proof-Obligations}
-\textbf{ToDo more details} \\
-Besides changing proof-obligations's levels, we also expanded them with a list of already seen and blocked SMT-solver queries. Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we just copy the the frame from one level before and continue with the next obligation. If we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
-With this we save time on programs with a lot of proof-obligations for example in loops, where we see the same queries very often or when we have blocked the newest obligation and have to block the obligation chain back to the initial one.
+Besides changing proof-obligations's levels, we also expanded them with a list of already seen and blocked SMT-solver queries. \par Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we consider the obligation blocked and add the negated formula to the frames, if we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
+With this memoization we save unnecessary calls to the SMT-solver and with that, time on programs with a lot of identical proof-obligations, in loops for example.
 
 \subsection{Using Preconditions}
-As discussed in the improvements section of the lifted PDR algorithm, using weakest preconditions is a really useful addition to the way proof-obligations are generated. In our implementation we instead use just the precondition, because "assume" edges have a reeeaaaallly funky weakest precondition that lead to diverse errors.
+As discussed in the improvements section of the lifted PDR algorithm, using weakest preconditions is a really useful addition to the way proof-obligations are generated. \par
+We implemented the usage of weakest preconditions but were met with problems regarding to \texttt{assume}-statements, because 
 \textbf{ToDo: A bit nicer}
 
 
@@ -1269,8 +1265,8 @@ node distance=2.5cm,%
  \end{figure}
  \label{procedure Ex}  
 
-There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and then a \texttt{return}-transition leading back to the main program. \par
-Because of PDR's backwards-search nature we first find the return of a procedure. Without knowing the context of the procedure and the prior state of the program's execution this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
+There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
+Because of PDR's backwards-search nature we first find the return of a procedure, without knowing the context of the corresponding procedure and the prior state of the program's execution this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
 
 A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFA, removing the procedure altogether.
 %
