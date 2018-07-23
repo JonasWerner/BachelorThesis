@@ -1,3 +1,4 @@
+%
 \documentclass[11pt, a4paper, BCOR=10mm, ngerman, oneside]{scrbook}
 \usepackage{graphicx}
 \usepackage{lmodern}
@@ -122,17 +123,17 @@
 
 \newcommand{\HorizontalLine}{\rule{\linewidth}{0.3mm}}
 
-	{\scshape\Large Bachelor Thesis\par}
+        {\scshape\Large Bachelor Thesis\par}
 
 
 % _____________________________________________________________________________
 \HorizontalLine \\[0.4cm]
-	{\huge\scshape Property Directed Reachability \\ \Large{In Ultimate} \par}
+        {\huge\scshape Property Directed Reachability \\ \Large{In Ultimate} \par}
 \HorizontalLine \\[1.5cm]
 % _____________________________________________________________________________
 
 
-	{\Large \scshape Jonas Werner}\\[5cm]
+        {\Large \scshape Jonas Werner}\\[5cm]
 
 
 \begin{tabular}[scshape]{>{\normalsize}l >{\normalsize}l}
@@ -205,14 +206,16 @@ The goal of this Bachelor's Thesis is to implement a new analysis-plugin that us
 
 
 \chapter{Related Work}
-\textbf{How much Detail?} \\
-Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit level to first-order logic formulas used in software, for that there are three other approaches: \par
 
-The first approach of using PDR on software is rather naive, Welp et al. propose a way to encode variables as bitvectors and then using the unmodified PDR on that encoding~\cite{DBLP:conf/date/WelpK13}. 
+Because hardware verification is limited to propositional logic, we need techniques to lift PDR from bit-level to first-order logic formulas used in software. \par We base our work on the approach by Lange et al \cite{DBLP:conf/fmcad/0001NN15} who propose a true lifting of \texttt{IC3} from hardware to software by fully exploiting the control flow of a given program, meaning the control flow graph is not altered in any way. \texttt{IC3} is being adjusted by using an SMT-solver instead of a SAT-solver, additional information is no longer being used globally over all states, every program location has its own local information, and if there exists an error location each iteration of the algorithm will have to prove that it is unreachable. \par
 
-The first ever approach of using PDR on first-order formulas came in 2012 by Cimatti and Griggio~\cite{DBLP:conf/cav/CimattiG12} who proposed exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+There are however three other approaches:
 
-Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproved.
+The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introducing a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
+
+In 2012 was the first ever approach of using PDR on first-order formulae devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+
+Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
 
 
@@ -321,8 +324,8 @@ After propagating all possible clauses, if $F_{k+1} \equiv F_{k}$ the algorithm 
 
 To illustrate the procedure further consider the pseudo-code: \\
 
+\begin{figure}
 \begin{algorithm}[H] 
-\caption{PDR-prove}
 \begin{algorithmic}[1]
 \Procedure{PDR-prove}{$I, T, P$}
 \State check for 0-counter-example
@@ -330,37 +333,39 @@ To illustrate the procedure further consider the pseudo-code: \\
 \Statex
 \Loop
 
-	\While {$\exists$ cube c, s.t. $trace.last() \land T \land c'$ is SAT and $c \Rightarrow \bar P$}
-	\State recursively block proof-obligation(c, trace.size() - 1)
-	\State and strengthen the frames of the trace.
-	\If {a proof-obligation(p, 0) is generated}
-	
-	\State{\Return{false}} \Comment{counter-example found}
-	\EndIf
-	\EndWhile
+        \While {$\exists$ cube c, s.t. $trace.last() \land T \land c'$ is SAT and $c \Rightarrow \bar P$}
+        \State recursively block proof-obligation(c, trace.size() - 1)
+        \State and strengthen the frames of the trace.
+        \If {a proof-obligation(p, 0) is generated}
+        
+        \State{\Return{false}} \Comment{counter-example found}
+        \EndIf
+        \EndWhile
 
-	\Statex	
-	
-	\State $F_{k+1} = new\ frame(P)$
-		\ForAll{clause c $\in$ $trace.last()$}
-		\If{$trace.last() \land T \land \bar c'$ is UNSAT} 
-		\State{$F_{k+1} = F_{k+1} \land c$}
-	\EndIf
+        \Statex 
+        
+        \State $F_{k+1} = new\ frame(P)$
+                \ForAll{clause c $\in$ $trace.last()$}
+                \If{$trace.last() \land T \land \bar c'$ is UNSAT} 
+                \State{$F_{k+1} = F_{k+1} \land c$}
+        \EndIf
 \EndFor
-	\If {$trace.last() == F_{k+1}$}
-	\State{\Return{true}}
-	\EndIf
-	\State $trace.push(F_{k+1})$
+        \If {$trace.last() == F_{k+1}$}
+        \State{\Return{true}}
+        \EndIf
+        \State $trace.push(F_{k+1})$
 
 \EndLoop
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+\caption{Bit-Level PDR Algorithm.}
+\end{figure}
 
 \section{Examples}
  
 \subsection{With Failing Property} 
-To show an application of the algorithm reconsider the \hyperref[ex1]{example} transition system $U = (X, I, T$) where \par
+To show an application of the algorithm reconsider the example transition system $U = (X, I, T$) in \hyperref[ex1]{Figure 3.1}, where \par
 \begin{itemize}
 \item $X = \{x_1, x_2, x_3\}$
 \item $I = \bar x_1 \land \bar x_2 \land \bar x_3$
@@ -499,18 +504,18 @@ node distance=2.5cm,%
     
     \node[state] (4) [right of=3] {$ x_1 \land \bar x_2$};
     
-	\draw[trans] (2) to node {} (3);
-	
-	\draw[trans] (3) to node {} (4);    
+        \draw[trans] (2) to node {} (3);
+        
+        \draw[trans] (3) to node {} (4);    
    
- 	  \path (1) edge [loop above] node {} (1)
- 	  (2) edge [loop above] node {} (2)
- 	  (4) edge [loop above] node {} (4)
+          \path (1) edge [loop above] node {} (1)
+          (2) edge [loop above] node {} (2)
+          (4) edge [loop above] node {} (4)
 
- 	  ;
+          ;
 );
   \end{tikzpicture}
-  \caption{Transition Graph of $B$}
+  \caption{Transition Graph of $B$.}
  \end{figure}
  \label{ex1}  
 
@@ -672,16 +677,16 @@ smallnode/.style={inner sep=1.4}
     \node[state] (5) [below left of=3] {$\ell_E$};
     
     
- 	  \path (1) edge node {$x := 0$} (2)
- 	  (2) edge node {$x := x + 1$} (3)
- 	  (3) edge node {$x \neq 1$} (4)
- 	  (3) edge [edge label={$x = 1$}, swap] node {} (5)
- 	  ;
+          \path (1) edge node {$x := 0$} (2)
+          (2) edge node {$x := x + 1$} (3)
+          (3) edge node {$x \neq 1$} (4)
+          (3) edge [edge label={$x = 1$}, swap] node {} (5)
+          ;
 
     
 );
   \end{tikzpicture}
-  \caption{Graph of $\mathcal{A}$}
+  \caption{Graph of $\mathcal{A}$.}
  \end{figure}
  \label{ex1} 
 
@@ -752,44 +757,47 @@ If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not 
 
 To illustrate the lifted algorithm further consider the updated pseudo-code: \\ \\
 
+\begin{figure}
 \begin{algorithm}[H] 
-\caption{lifted-PDR-prove}
+
 \begin{algorithmic}[1]
 \Procedure{lifted-PDR-prove}{$L, G$}
 \State check for 0-counter-example
 \State $\ell_0.trace.push(new\ frame(true))$
 \ForAll {$\ell \in L \backslash \{ \ell_0, \ell_E\}$}
-	\State $\ell.trace.push(new\ frame(false))$
+        \State $\ell.trace.push(new\ frame(false))$
 \EndFor
 \State $level := 0$
 \Statex
 \Loop
-	\ForAll {$\ell \in L \backslash \{\ell_E\}$}
-		\State $\ell.trace.push(new\ frame(true))$
-	\EndFor
-	\State $level:= level + 1$
-	\State get initial proof-obligations 
-	\Statex
-	\While {$\exists$ proof-obligation $(t, \ell, i),$} 
-	\State Recursively block proof-obligation
-	\If {a proof-obligation$(p, \ell, 0)$ is generated}
-		\State{\Return{false}}
-	\EndIf
-	\EndWhile
+        \ForAll {$\ell \in L \backslash \{\ell_E\}$}
+                \State $\ell.trace.push(new\ frame(true))$
+        \EndFor
+        \State $level:= level + 1$
+        \State get initial proof-obligations 
+        \Statex
+        \While {$\exists$ proof-obligation $(t, \ell, i),$} 
+        \State Recursively block proof-obligation
+        \If {a proof-obligation$(p, \ell, 0)$ is generated}
+                \State{\Return{false}}
+        \EndIf
+        \EndWhile
 
-	\Statex	
-	\For {$i = 0;\ i \leq level;\ i:= i + 1$}
-		\For {$\ell \in L \backslash \{l_E \}$}
-			\If {$\ell.trace[i] \neq \ell.trace[i-1]$}
-				\State{break}
-			\EndIf
-		\EndFor
-		\State{\Return{true}}
-	\EndFor
+        \Statex 
+        \For {$i = 0;\ i \leq level;\ i:= i + 1$}
+                \For {$\ell \in L \backslash \{l_E \}$}
+                        \If {$\ell.trace[i] \neq \ell.trace[i-1]$}
+                                \State{break}
+                        \EndIf
+                \EndFor
+                \State{\Return{true}}
+        \EndFor
 \EndLoop
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+\caption{Lifted PDR Algorithm.}
+\end{figure}
 
 \section{Example}
 \subsection{Reachable Error State}
@@ -810,7 +818,7 @@ No, we continue with initializing level 0 by adding to each $\ell \in L \backsla
 \begin{center}
 \begin{tabu}{cc}
 \toprule
- 	     & level \\
+             & level \\
 \cmidrule(lr){2-2}
 location & 0 \\
 \cmidrule{1-2}
@@ -830,7 +838,7 @@ We initialize new frames for level 1 as \texttt{true}: \\
 \begin{center}
 \begin{tabu}{ccc}
 \toprule
- 	     & \multicolumn{2}{c}{level} \\
+             & \multicolumn{2}{c}{level} \\
 \cmidrule(lr){2-3}
 location & 0 & 1 \\
 \cmidrule{1-3}
@@ -848,9 +856,9 @@ To generate the initial proof-obligations, we check $G$ and take the transitions
 
 \textbf{3. Step: First Blocking Phase} \\
 We need to block the initial proof-obligation $(x = 1, \ell_2, 1)$. Let $\ell_{pre}$ be a predecessor of $\ell_2$, we need to check the formula:
-\begin{equation}
+\begin{equation*}
 F_{0, l_{pre}} \land T_{\ell_{pre} \rightarrow \ell_2} \land x' = 1
-\end{equation}
+\end{equation*}
 for satisfiability. As there is only one predecessor $\ell_1$ we test:
 \begin{equation*}
 \underbrace{false}_{F_{0, \ell_1}} \land \underbrace{x' := x + 1}_{T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
@@ -862,7 +870,7 @@ We add $\overline{(x=1)} \equiv x \neq 1$ to $F_{0, \ell_2}$ and $F_{1, \ell_2}$
 \begin{center}
 \begin{tabu}{ccc}
 \toprule
- 	     & \multicolumn{2}{c}{level} \\
+             & \multicolumn{2}{c}{level} \\
 \cmidrule(lr){2-3}
 location & 0 & 1 \\
 \cmidrule{1-3}
@@ -894,7 +902,7 @@ We initialize new frames for level 2 as \texttt{true}: \\
 \begin{center}
 \begin{tabu}{cccc}
 \toprule
- 	     & \multicolumn{3}{c}{level} \\
+             & \multicolumn{3}{c}{level} \\
 \cmidrule(lr){2-4}
 location & 0 & 1 & 2 \\
 \cmidrule{1-4}
@@ -960,16 +968,16 @@ smallnode/.style={inner sep=1.4}
     
     
     
- 	  \path (1) edge node {$x := 0 \land y := x$} (2)
- 	  (2) edge [loop right] node {$x := x + 1 \land y := y + 1$} (2)
- 	  (2) edge [edge label={$x = y$}, swap] node {} (3)
- 	  (2) edge [edge label={$x \neq y$}, swap] node {} (4)
- 	  ;
+          \path (1) edge node {$x := 0 \land y := x$} (2)
+          (2) edge [loop right] node {$x := x + 1 \land y := y + 1$} (2)
+          (2) edge [edge label={$x = y$}, swap] node {} (3)
+          (2) edge [edge label={$x \neq y$}, swap] node {} (4)
+          ;
 
     
 );
   \end{tikzpicture}
-  \caption{Graph of $\mathcal{B}$}
+  \caption{Graph of $\mathcal{B}$.}
  \end{figure}
  \label{ex1} 
 
@@ -984,7 +992,7 @@ No, we continue with initializing level 0 by adding to each $\ell \in L \backsla
 \begin{center}
 \begin{tabu}{cc}
 \toprule
- 	     & level \\
+             & level \\
 \cmidrule(lr){2-2}
 location & 0 \\
 \cmidrule{1-2}
@@ -1004,7 +1012,7 @@ We initialize new frames for level 1 as \texttt{true}: \\
 \begin{center}
 \begin{tabu}{ccc}
 \toprule
- 	     & \multicolumn{2}{c}{level} \\ 
+             & \multicolumn{2}{c}{level} \\ 
 \cmidrule(lr){2-3}
 location & 0 & 1 \\
 \cmidrule{1-3}
@@ -1032,7 +1040,7 @@ Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \e
 \begin{center}
 \begin{tabu}{ccc}
 \toprule
- 	     & \multicolumn{2}{c}{level} \\
+             & \multicolumn{2}{c}{level} \\
 \cmidrule(lr){2-3}
 location & 0 & 1 \\
 \cmidrule{1-3}
@@ -1068,7 +1076,7 @@ We initialize new frames for level 2 as \texttt{true}: \\
 \begin{center}
 \begin{tabu}{cccc}
 \toprule
- 	     & \multicolumn{3}{c}{level} \\
+             & \multicolumn{3}{c}{level} \\
 \cmidrule(lr){2-4}
 location & 0 & 1 & 2\\
 \cmidrule{1-4}
@@ -1097,7 +1105,7 @@ Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \e
 \begin{center}
 \begin{tabu}{cccc}
 \toprule
- 	     & \multicolumn{3}{c}{level} \\
+             & \multicolumn{3}{c}{level} \\
 \cmidrule(lr){2-4}
 location & 0 & 1 & 2\\
 \cmidrule{1-4}
@@ -1124,7 +1132,7 @@ As there are no proof-obligations left, we continue with the second propagation-
 \begin{center}
 \begin{tabu}{cccc}
 \toprule
- 	     & \multicolumn{3}{c}{level} \\
+             & \multicolumn{3}{c}{level} \\
 \cmidrule(lr){2-4}
 location & 0 & 1 & 2\\
 \cmidrule{1-4}
@@ -1252,14 +1260,14 @@ node distance=2.5cm,%
     
     \node[state] (2) [right of=1] {\texttt{proc()}};
     
-	\path[->] (2) edge node[above] {\texttt{return}} +(5,0); 
-	\path[<-] (2) edge node[above] {\texttt{call}} +(180:5); 
+        \path[->] (2) edge node[above] {\texttt{return}} +(5,0); 
+        \path[<-] (2) edge node[above] {\texttt{call}} +(180:5); 
 
 );
   \end{tikzpicture}
-  \caption{A Procedure}
+  \caption{A Procedure.}
  \end{figure}
- \label{ex1}  
+ \label{procedure Ex}  
 
 There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and then a \texttt{return}-transition leading back to the main program. \par
 Because of PDR's backwards-search nature we first find the return of a procedure. Without knowing the context of the procedure and the prior state of the program's execution this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
@@ -1315,13 +1323,13 @@ A solution to that problem is, instead of using a linear approach, we modify our
 %    
 %    
 %    
-% 	  \path (1) edge node {$x := 0$} (2)
-% 	  (2) edge node {$call\ foo(x)$} (3)
-% 	  (3) edge node {$x := x + 1$} (4)
-% 	  (4) edge node {$return$} (5)
-% 	  (5) edge node {$x == 1$} (6)
-% 	  (5) edge node {$x \neq 1$} (7)
-% 	  ;
+%         \path (1) edge node {$x := 0$} (2)
+%         (2) edge node {$call\ foo(x)$} (3)
+%         (3) edge node {$x := x + 1$} (4)
+%         (4) edge node {$return$} (5)
+%         (5) edge node {$x == 1$} (6)
+%         (5) edge node {$x \neq 1$} (7)
+%         ;
 %
 %    
 %);
@@ -1335,7 +1343,7 @@ A solution to that problem is, instead of using a linear approach, we modify our
 %\begin{center}
 %\begin{tabu}{cccc}
 %\toprule
-% 	     & \multicolumn{3}{c}{level} \\
+%            & \multicolumn{3}{c}{level} \\
 %\cmidrule(lr){2-4}
 %location & 0 & 1 & 2\\
 %\cmidrule{1-4}
