@@ -598,7 +598,7 @@ The most time consuming part of the algorithm is the solving of SAT-queries, the
 \subsection{Generalization of States}
 Blocking one state at a time is ineffective.  \\
 When blocking a state $s$ do not add $\bar s$ but try to find and add a cube $c \subseteq \bar s$. \\
-Most modern SAT-solver not only return unsatisfiable but also a reason for it, either by an UNSAT-core or through a final conflict-clause. Both of them deliver information about which clauses were actually used in the proof. To find a $c$ just remove unused clauses of $s$.
+Most modern SAT-solver not only return unsatisfiable but also a reason for it, either by an UNSAT-core or through a final conflict-clause. Both of them deliver information about which clauses were actually used in the proof. To find $c$ just remove unused clauses of $s$.
 
 \subsection{Ternary Simulation}
 To reduce proof-obligations it is possible to eliminate not needed state variables by checking a satisfying assignment using ternary simulation. \\
@@ -708,7 +708,7 @@ Because the states in a CFG are no formulas, the lifted algorithm no longer bloc
 
 \item Because of the structure of the CFA, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
 
-\item The propagation-phase is slimmed, it only checks for termination. In the phase the algorithm checks the frames to find a level $i$ where all locations have a fixpoint, meaning  $F_{i, \ell} = F_{i-1, \ell}$ for every location $\ell \in L \backslash \{l_E \}$, $i$ is called a global fixpoint position. There is no more propagating formulas forward.
+\item The propagation-phase is slimmed, it only checks for termination. In the phase the algorithm checks the frames to find a level $i$ where all locations have a fixpoint, meaning  $F_{i, \ell} = F_{i-1, \ell}$ for every location $\ell \in L \backslash \{l_E \}$, $i$ is called a global fixpoint position. There is no more propagating formulae forward.
 \end{itemize}
 
 \hspace*{5cm}
@@ -1146,25 +1146,27 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 
 As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
-\textsl{Ternary Simulation} cannot be used on first-order formulas making it impossible to use it to reduce lifted proof-obligations. \par
-Different generalization techniques are possible:
+\textsl{Ternary Simulation} cannot be used on first-order formulae making it impossible to use it to reduce lifted proof-obligations. \par
+There are possible generalization techniques: \par
 \subsection{Syntactical Analysis}
-Given a cube $c$ remove $a \subseteq c$, if no variable of $a$ is assigned in $T$ and
-\begin{itemize}
-\item[1.] $a$ is already contained in a frame, or
-\item[2.] there exists an \texttt{assume a} in $T$ \\ \\
-\end{itemize} 
+It is possible to remove a cube $c$ from a proof-obligation if no variable in $c$ is assigned in $T$, and either $c$ is already contained in a frame or there is an \texttt{assume $c$} statement in $T$. Making the obligation more general.
 
 
 \subsection{Weakest Precondition}
-The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating multiple proof-obligations for each individual predecessor state, the weakest precondition covers all of them in a single one. \\ \\
+The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating a single proof-obligation for every predecessor state and wasting time blocking each of them, calculate the weakest precondition which is a safe overapproximation of all predecessor states. \\ \\
 
 
 \subsection{Disjunctive Normal Form}
-After transforming the weakest precondition into its disjunctive normal form, each cube can be considered as a separate smaller proof-obligation, saving time on larger formulas.\\ \\
+It is possible to transform cubes into clauses by negating them. When there is a large proof-obligation we can use this to generate the disjunctive normal form and split the large obligation into smaller ones by taking each cube in the disjunctive normal form as a new proof-obligation, saving time because smaller queries are solved faster.
 
 \subsection{Interpolation}
-\textbf{TODO}
+Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An interpolant $I$ for $(A, B)$ is a formula fulfilling the following characteristics:
+\begin{itemize}
+\item $A \Rightarrow I$
+\item $I \land B$ is unsatisfiable
+\item $I$ consists only of variables found in $A \cup B$
+\end{itemize}
+
 We are using interpolation on frames and pos not on traces.
 
 \pagebreak
@@ -1228,7 +1230,7 @@ As discussed in the improvements section of the lifted PDR algorithm, using weak
 As shown before, we have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.
 
 \subsection{Interpolation}
-Ultimate already supports ways of computing an interpolant for two given formulas. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
+Ultimate already supports ways of computing an interpolant for two given formulae. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
 Let $\ell$ and $\ell_{pre}$ be two locations where $\ell_{pre}$ is a predecessor of $\ell$, $F_{i - 1, \ell_{pre}}$ be a frame, $T_{\ell_{pre} \rightarrow \ell}$ be the transition from $\ell_{pre}$ to $\ell$, and $t'$ be a primed formula. \\
 To get an interpolant $I$ for that query we first need to define $A$ and $B$, we do that by dividing the query the following way:
 \begin{equation*}
