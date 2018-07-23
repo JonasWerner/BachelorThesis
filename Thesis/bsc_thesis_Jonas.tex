@@ -36,6 +36,7 @@
 \usetikzlibrary{positioning,shapes.geometric, arrows,automata, decorations.pathreplacing}
 \usepackage{pgf}
 \usepackage{slantsc}
+\sloppy
 
 \usepackage[english]{babel}
 \hypersetup{
@@ -221,7 +222,8 @@ Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/Hod
 
 \chapter{PDR Background}
 \label{PDR}
-In the following we will describe how IC3 and to that extend PDR works as a hardware-checker, because hardware only uses bits, every variable will be boolean.
+In the following we will describe how IC3 and to that extend PDR works as hardware \ -checker,
+because hardware only uses bits, every variable will be boolean. 
 \section{Preliminaries}
 First some preliminary definitions and notations:  \par
 A \textsl{literal} is a variable or its negation, e.g., $x \text{ or } \bar y$ \\
@@ -484,16 +486,10 @@ and corresponding transition graph: \par
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[%
-    ->,
-    >=stealth', shorten >=1pt, auto,
-    node distance=5cm, scale=1, 
-    transform shape, align=center,    
-    state/.style={%
-      circle,
-      minimum size=3.5cm,
-      scale=0.7,
-      draw
-    }
+scale=0.7,%
+trans/.style={->,>=stealth},%
+smallnode/.style={inner sep=1.4},%
+node distance=2.5cm,%
   ]
     \node[initial, state](1){$\bar x_1 \land \bar x_2$};
     
@@ -503,16 +499,15 @@ and corresponding transition graph: \par
     
     \node[state] (4) [right of=3] {$ x_1 \land \bar x_2$};
     
-    
+	\draw[trans] (2) to node {} (3);
+	
+	\draw[trans] (3) to node {} (4);    
+   
  	  \path (1) edge [loop above] node {} (1)
  	  (2) edge [loop above] node {} (2)
- 	  (2) edge [] node {} (3)
- 	  (3) edge [] node {} (4)
  	  (4) edge [loop above] node {} (4)
 
  	  ;
-
-    
 );
   \end{tikzpicture}
   \caption{Transition Graph of $B$}
@@ -662,14 +657,9 @@ with the graph: \\
 \begin{tikzpicture}[%
     ->,
     >=stealth', shorten >=1pt, auto,
-    node distance=3cm, scale=1, 
+    node distance=2cm, scale=1, 
     transform shape, align=center,    
-    state/.style={%
-      circle,
-      minimum size=1.5cm,
-      scale=1,
-      draw
-    }
+smallnode/.style={inner sep=1.4}
   ]
     \node[initial above, state](1){$\ell_0$};
     
@@ -870,15 +860,18 @@ Which is unsatisfiable \\
 We add $\overline{(x=1)} \equiv x \neq 1$ to $F_{0, \ell_2}$ and $F_{1, \ell_2}$, blocking $x=1$ at $\ell_2$ on level 1. \\
 
 \begin{center}
-\begin{tabular}{c | c |c}
-\backslashbox{location}{level} & 0 & 1\\
-\hline
+\begin{tabu}{ccc}
+\toprule
+ 	     & \multicolumn{2}{c}{level} \\
+\cmidrule(lr){2-3}
+location & 0 & 1 \\
+\cmidrule{1-3}
 $\ell_0$ & $true$ & $true$ \\
 $\ell_1$ & $false$ & $true$ \\
 $\ell_2$ & $false \land x \neq 1$ & $true \land x \neq 1$ \\
 $\ell_3$ & $false$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
 
 \hspace*{3cm}
@@ -897,19 +890,23 @@ We see there is no such $i$, we continue with the next level. \\ \\ \par
 
 \textbf{5. Step: Next Level} \\
 We initialize new frames for level 2 as \texttt{true}: \\
+
 \begin{center}
-\begin{tabular}{c | c |c|c}
-\backslashbox{location}{level} & 0 & 1 & 2\\
-\hline
+\begin{tabu}{cccc}
+\toprule
+ 	     & \multicolumn{3}{c}{level} \\
+\cmidrule(lr){2-4}
+location & 0 & 1 & 2 \\
+\cmidrule{1-4}
 $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false$ & $true$ & $true$ \\
 $\ell_2$ & $false \land x \neq 1$ & $true \land x \neq 1$ & $true$ \\
 $\ell_3$ & $false$ & $true$ & $true$ \\
-
-\end{tabular}
+\bottomrule\end{tabu}
 \end{center}
 
 \hspace*{3cm}
+
 
 Again generate the initial proof-obligation which is the same as before but on level 2 now, we have initial proof-obligation $(x = 1, \ell_2, 2)$ \\ \\ \par
 
@@ -949,14 +946,9 @@ with graph: \\
 \begin{tikzpicture}[%
     ->,
     >=stealth', shorten >=1pt, auto,
-    node distance=3cm, scale=1, 
+    node distance=2cm, scale=1, 
     transform shape, align=center,    
-    state/.style={%
-      circle,
-      minimum size=1.5cm,
-      scale=1,
-      draw
-    }
+smallnode/.style={inner sep=1.4}
   ]
     \node[initial above, state](1){$\ell_0$};
     
@@ -987,15 +979,20 @@ We now want to check whether $\ell_E$ is reachable, using the lifted algorithm: 
 Is $\ell_0 = \ell_E$? \\
 No, we continue with initializing level 0 by adding to each $\ell \in L \backslash \{\ell_0, \ell_E\}$ a new frame $F_{0, \ell} = false$, for $\ell_0$ adding $F_{0, \ell_0} = true$. \\ \\
 
+
+\setlength\tabcolsep{0.35em}
 \begin{center}
-\begin{tabular}{c | c}
-\backslashbox{location}{level} & 0 \\
-\hline
+\begin{tabu}{cc}
+\toprule
+ 	     & level \\
+\cmidrule(lr){2-2}
+location & 0 \\
+\cmidrule{1-2}
 $\ell_0$ & $true$ \\
 $\ell_1$ & $false$ \\
 $\ell_2$ & $false$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
 
 \hspace*{5cm}
@@ -1005,16 +1002,20 @@ $\ell_2$ & $false$ \\
 We initialize new frames for level 1 as \texttt{true}: \\
 
 \begin{center}
-\begin{tabular}{c | c |c}
-\backslashbox{location}{level} & 0 & 1\\
-\hline
+\begin{tabu}{ccc}
+\toprule
+ 	     & \multicolumn{2}{c}{level} \\ 
+\cmidrule(lr){2-3}
+location & 0 & 1 \\
+\cmidrule{1-3}
 $\ell_0$ & $true$ & $true$ \\
 $\ell_1$ & $false$ & $true$ \\
 $\ell_2$ & $false$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
 
+\hspace*{5cm}
 
 
 We see there is only one transition leading to $\ell_E$, $(\ell_1, x \neq y, \ell_E)$. We get the initial proof-obligation $(x \neq y, \ell_1, 1)$. \\ \\ \par
@@ -1029,16 +1030,20 @@ To block the initial proof-obligation $(x \neq y, \ell_1, 1)$ we check each pred
 Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$ and $F_{1, \ell_1}$: \\
 
 \begin{center}
-\begin{tabular}{c | c |c}
-\backslashbox{location}{level} & 0 & 1\\
-\hline
+\begin{tabu}{ccc}
+\toprule
+ 	     & \multicolumn{2}{c}{level} \\
+\cmidrule(lr){2-3}
+location & 0 & 1 \\
+\cmidrule{1-3}
 $\ell_0$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
-\hspace*{3cm}
+
+\hspace*{5cm}
 
 \item predecessor: $\ell_1$
 \begin{equation*}
@@ -1059,17 +1064,22 @@ We see there is no such $i$, we continue with the next level. \\ \\ \par
 
 \textbf{5. Step: Next Level} \\
 We initialize new frames for level 2 as \texttt{true}: \\
+
 \begin{center}
-\begin{tabular}{c | c |c|c}
-\backslashbox{location}{level} & 0 & 1 & 2\\
-\hline
+\begin{tabu}{cccc}
+\toprule
+ 	     & \multicolumn{3}{c}{level} \\
+\cmidrule(lr){2-4}
+location & 0 & 1 & 2\\
+\cmidrule{1-4}
 $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true$\\
 $\ell_2$ & $false$ & $true$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
-\hspace*{3cm}
+
+\hspace*{5cm}
 
 Again we generate the initial proof-obligation which is the same as before but on level 2 now, we have the initial proof-obligation $(x \neq y, \ell_1, 2).$ \\ \\ \par
 
@@ -1085,16 +1095,20 @@ To block proof-obligation $(x \neq y, \ell_1, 2)$ we check the predecessors of $
 Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$, $F_{1, \ell_1}$ and $F_{2, \ell_1}$:
 
 \begin{center}
-\begin{tabular}{c | c |c|c}
-\backslashbox{location}{level} & 0 & 1 & 2\\
-\hline
+\begin{tabu}{cccc}
+\toprule
+ 	     & \multicolumn{3}{c}{level} \\
+\cmidrule(lr){2-4}
+location & 0 & 1 & 2\\
+\cmidrule{1-4}
 $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ & $true$ \\
-
-\end{tabular}
+\bottomrule
+\end{tabu}
 \end{center}
-\hspace*{3cm}
+
+\hspace*{5cm}
 
 \item predecessor: $\ell_1$
 \begin{equation*}
@@ -1108,18 +1122,22 @@ As there are no proof-obligations left, we continue with the second propagation-
 \textbf{7. Step: Second Propagation-Phase} \\
 
 \begin{center}
-\begin{tabular}{c | c ? c |c ?}
-\backslashbox{location}{level} & 0 & 1 & 2\\
-\hline
+\begin{tabu}{cccc}
+\toprule
+ 	     & \multicolumn{3}{c}{level} \\
+\cmidrule(lr){2-4}
+location & 0 & 1 & 2\\
+\cmidrule{1-4}
 $\ell_0$ & $true$ & $true$ & $true$ \\
 $\ell_1$ & $false \land x = y$ & $true \land x = y$ & $true \land x = y$ \\
 $\ell_2$ & $false$ & $true$ & $true$ \\
+\bottomrule
  \multicolumn{1}{c}{} &  \multicolumn{1}{c}{} & \multicolumn{2}{c}{\upbracefill} \\[-1ex]
  \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global\ fixpoint$}\\
-
-\end{tabular}
+\end{tabu}
 \end{center}
-\hspace*{3cm}
+
+\hspace*{5cm}
 
 We see that level 1 equals level 2 on all locations, with that we found global fixpoint position $i = 2$, the forumulas at that position are the inductive invariants proving that $\ell_E$ is not reachable.
 
@@ -1187,7 +1205,7 @@ To illustrate this technique further, consider the following graphic: \\
 \begin{figure}[H]
 \centering
 \resizebox{0.9\textwidth}{!}{\input{fig/fig_obligations}}
-\caption{A nice caption ending in a period.}
+\caption{Chain of Proof-Obligation Generation.}
 \label{fig:the_nice_figure}
 \end{figure}
  
@@ -1206,7 +1224,7 @@ As discussed in the improvements section of the lifted PDR algorithm, using weak
 
 
 \chapter{Future Work}
-\section{Implementation of Further Improvements}
+\section{Further Improvements}
 As shown before, we have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.
 
 \subsection{Interpolation}
@@ -1217,9 +1235,123 @@ To get an interpolant $I$ for that query we first need to define $A$ and $B$, we
 \underbrace{F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell}}_{A} \land \underbrace{t'}_B
 \end{equation*}
 Because we have proven the query unsatisfiable generating an interpolant is possible. \\
-
+With this technique our frames contain only interpolants
 \subsection{Procedures}
-Ultimate aims to verify C programs, most of which contain procedure calls, which do not work with PDR yet because xyz
+Ultimate aims to verify C programs, most of which contain procedure calls that cannot be handled yet. \\ Procedures are presented like this: 
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[%
+scale=0.7,%
+trans/.style={->,>=stealth},%
+smallnode/.style={inner sep=1.4},%
+node distance=2.5cm,%
+  ]
+    
+    \node[state] (2) [right of=1] {\texttt{proc()}};
+    
+	\path[->] (2) edge node[above] {\texttt{return}} +(5,0); 
+	\path[<-] (2) edge node[above] {\texttt{call}} +(180:5); 
+
+);
+  \end{tikzpicture}
+  \caption{A Procedure}
+ \end{figure}
+ \label{ex1}  
+
+There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and then a \texttt{return}-transition leading back to the main program. \par
+Because of PDR's backwards-search nature we first find the return of a procedure. Without knowing the context of the procedure and the prior state of the program's execution this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
+
+A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFA, removing the procedure altogether.
+%
+%Take for example the program: \\
+
+%\begin{algorithm}[H] 
+%\caption{Example Program with Procedure}
+%\begin{algorithmic}[1]
+%\State int x
+%\Procedure{main}{}
+%\State x := 0
+%\State foo(x)
+%\State Assert x == 1
+%\EndProcedure
+%\Statex
+%\Procedure{foo}{x}
+%\State{\Return x := x + 1}
+%\EndProcedure
+%
+%\end{algorithmic}
+%  \caption{Example Program with Procedure}
+%\end{algorithm}
+%
+%With the corresponding graph: \\
+
+%\begin{figure}[H]
+%\centering
+%\hspace*{3cm}
+%\begin{tikzpicture}[%
+%    ->,
+%    >=stealth', shorten >=1pt, auto,
+%    node distance=2cm, scale=1, 
+%    transform shape, align=center,    
+%smallnode/.style={inner sep=1.4}
+%  ]
+%    \node[initial above, state](1){$\ell_0$};
+%    
+%    \node[state] (2) [below of=1] {$\ell_{call}$};
+%    
+%    \node[state] (3) [below right of=2] {$\ell_{foo}$};
+%    
+%    \node[state] (4) [below of=3] {$\ell_{ret}$};
+%    
+%    \node[state] (5) [below left of=4] {$\ell_2$};
+%    
+%    
+%    \node[state] (6) [below left of=5] {$\ell_3$};
+%    
+%    \node[state] (7) [below right of=5] {$\ell_E$};
+%    
+%    
+%    
+% 	  \path (1) edge node {$x := 0$} (2)
+% 	  (2) edge node {$call\ foo(x)$} (3)
+% 	  (3) edge node {$x := x + 1$} (4)
+% 	  (4) edge node {$return$} (5)
+% 	  (5) edge node {$x == 1$} (6)
+% 	  (5) edge node {$x \neq 1$} (7)
+% 	  ;
+%
+%    
+%);
+%  \end{tikzpicture}
+%  \caption{Graph of Example Program.}
+% \end{figure}
+% \label{ex1} 
+%
+%Assume we are on the second level, with frames: \\
+%
+%\begin{center}
+%\begin{tabu}{cccc}
+%\toprule
+% 	     & \multicolumn{3}{c}{level} \\
+%\cmidrule(lr){2-4}
+%location & 0 & 1 & 2\\
+%\cmidrule{1-4}
+%$\ell_2$ & $false \land x == 1$ & $true$ \\
+%$\ell_{ret}$ & $false$ & $true \land x = y$ & $true \land x = y$ \\
+%$\ell_{foo}$ & $false$ & $true$ & $true$ \\
+%\bottomrule
+% \multicolumn{1}{c}{} &  \multicolumn{1}{c}{} & \multicolumn{2}{c}{\upbracefill} \\[-1ex]
+% \multicolumn{1}{c}{} & \multicolumn{1}{c}{} & \multicolumn{2}{c}{$\scriptstyle global\ fixpoint$}\\
+%\end{tabu}
+%\end{center}
+%
+%\hspace*{5cm}
+%
+%
+%
+%
+
 
 
 \bibliographystyle{plain}
