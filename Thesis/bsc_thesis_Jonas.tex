@@ -46,7 +46,7 @@
     pdfmenubar=true,
     pdffitwindow=false,
     pdfstartview={FitH},
-    pdftitle={Property Directed Reachability in Ultimate},
+    pdftitle={Property Directed Reachability in \textsc{Ultimate}},
     pdfauthor={Author},
     pdfsubject={Subject},
     pdfcreator={Creator},
@@ -126,7 +126,7 @@
 
 % _____________________________________________________________________________
 \HorizontalLine \\[0.4cm]
-        {\huge\scshape Property Directed Reachability \\ \Large{In Ultimate} \par}
+        {\huge\scshape Property Directed Reachability \\ \Large{In \textsc{Ultimate}} \par}
 \HorizontalLine \\[1.5cm]
 % _____________________________________________________________________________
 
@@ -197,10 +197,10 @@ SAT-based model-checking is a useful technique for both software and hardware ve
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}.
 Because it was so new, it came as a surprise that it won third place in the hardware
 model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is not based on interpolation but on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproved using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \\ \par
-\textsc{Ultimate} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, trans-
+\textsc{\textsc{Ultimate}} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, trans-
 forming programs from one representation to another, or analyse programs.
- \textsc{Ultimate} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
-The goal of this Bachelor's Thesis is to implement a new analysis-plugin that uses PDR on software in \textsc{Ultimate} and to compare it with the other existing techniques.
+ \textsc{\textsc{Ultimate}} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
+The goal of this Bachelor's Thesis is to implement a new analysis-plugin that uses PDR on software in \textsc{\textsc{Ultimate}} and to compare it with the other existing techniques.
 
 
 \chapter{Related Work}
@@ -209,9 +209,9 @@ Because hardware verification is limited to propositional logic, we need techniq
 
 There are however three other possible approaches:
 
-The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introducing a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
+The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introduce a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
 
-In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the \textbf{ToDo: what is a ART ? In this tree xy happens, and formula is yx} partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
@@ -739,7 +739,7 @@ is satisfiable.
 \item If the formula is \textsl{unsatisfiable}, strengthen each frame $F_{j, \ell}$, $j \leq i$ with $\bar t$, meaning $F_{j, \ell} = F_{j, \ell} \land \bar t$, blocking $t$ at $\ell$ on level $i$.
 \end{itemize}
 
-This continues recursively until either a proof-obligation $(d, \ell, 0)$ is generated, proving that there exists a feasible path to $\ell_E$ terminating the algorithm, or there is no proof-obligation left. \\
+This continues recursively until either a proof-obligation $(d, \ell, 0)$ is generated, proving that there exists a feasible path to $\ell_E$ terminating the algorithm, or there is no unblocked proof-obligation left. \\
 
 \textsl{3. Propagation-Phase} \\
 Check the frames if there exists a global fixpoint position $i$ where
@@ -1147,6 +1147,7 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 
 
 \section{Possible Improvements}
+\label{improvements}
 
 As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
@@ -1176,10 +1177,9 @@ Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An in
 \pagebreak
 
 
-\chapter{Implementation in Ultimate}
-\section{Introduction Ultimate}
-\textbf{This good?} \\
-Ultimate program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
+\chapter{PDR in \textsc{Ultimate}}
+\section{Introduction \textsc{Ultimate}}
+\textsc{Ultimate} is a program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
 \begin{itemize}
 \item Source plugins define a file-to-model transformation
 
@@ -1194,10 +1194,22 @@ Ultimate program analysis framework, based on \textsl{plugins} that can be execu
 \end{itemize}
 
 \section{Implementation}
-To implement PDR in Ultimate we chose to implement a new library plugin \textsl{Library-PDR}, that is used in the generator plugin \textsl{traceabstraction}. \\
-\textbf{ToDo add specific details like how do we manage proof obligations, hoare triple checker etc}
+To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin \textsl{Library-PDR}, that will be executed as part of \textsc{Ultimate Automizer} \cite{Heizmann:2013:SMC:2526861.2526864}. \par 
+\textsc{Ultimate Automizer}, \textsc{Automizer} in the following, is a software verifier that is capable of checking safety and liveness properties. It uses an automata-based \cite{DBLP:conf/cav/HeizmannHP13} instance of the CEGAR scheme, that works like this: \\
+ In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible. \\
+ \begin{itemize}
+	\item If the trace is \textsl{feasible} then the program is proven unsafe, meaning there exists a possible program execution leading to an error location.
+	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, try to eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
+ \end{itemize}
+ \par
+ Now, to check a trace for feasibility we use our newly integrated PDR-Library. 
+ The PDR-Library is a path program focused technique, meaning that we do not consider the trace alone but also the context of the analyzed program...\textbf{ToDo} \\
+ 
+ The sequence of interpolants are the entries in the frames on the global fixpoint.
+ 
 
 \section{Improvements}
+As we have seen in \hyperref[improvements]{section 4.4} there are a plethora of possible ways to make PDR faster, we implemented some of those ideas and developed some of our own.
 \subsection{Caching of Proof-Obligation Queue}
 We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked, we then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
 Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
@@ -1205,8 +1217,6 @@ Now as a result of the backwards search nature of PDR, each new level has to cre
 Our idea was to cache the proof-obligation queue and always start a new level with the latest generated one, so we save the process of generating already known obligations. \par For that we introduced a \textsl{global level} variable serving as the level counter, and changed the levels of each proof-obligation to be \textsl{subtracted} from the global level, resulting in a relative level = $global\ level - local\ level$, with that every proof-obligation is at its corresponding level of generation. \par For example, the initial proof-obligation has its local level 0, so that $relative\ level = global\ level - 0 = global\ level$, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that relative level = global level - 1 means that this proof-obligation comes immediately after the initial one. \par
 Something that cannot be saved is blocking of the previous proof-obligation chain, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ 
 To illustrate this technique further, consider the following graphic: \\
-
-\textbf{ToDo Graphic~\ref{fig:the_nice_figure}}
 
 \begin{figure}[H]
 \centering
@@ -1222,19 +1232,26 @@ With this memoization we save unnecessary calls to the SMT-solver and with that,
 
 \subsection{Using Preconditions}
 As discussed in the improvements section of the lifted PDR algorithm, using weakest preconditions is a really useful addition to the way proof-obligations are generated. \par
-We implemented the usage of weakest preconditions but were met with problems regarding to \texttt{assume}-statements, because 
-\textbf{ToDo: A bit nicer}
+We implemented the usage of weakest preconditions, but were met with problems regarding \texttt{assume}-statements: \\
+Let $\varphi$ and $\psi$ be first-order formulas and $wp$ be the weakest precondition function, we have: 
+\begin{equation}
+	wp(\varphi, \texttt{assume}\ \psi) = \psi \Rightarrow \varphi
+\end{equation}
+
+Now consider the proof-obligation \textbf{ToDo proof-obligation example with assume}
+...
 
 
 \chapter{Evaluation}
+\textbf{Nice Graph + How did we get those results, some interpretation and so forth}
 
 
 \chapter{Future Work}
 \section{Further Improvements}
-As shown before, we have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.
+We have implemented some improvement methods, but there are still more possible ways to make our PDR algorithm more efficient.
 
 \subsection{Interpolation}
-Ultimate already supports ways of computing an interpolant for two given formulae. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
+\textsc{Ultimate} already supports ways of computing an interpolant for two given formulae. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
 Let $\ell$ and $\ell_{pre}$ be two locations where $\ell_{pre}$ is a predecessor of $\ell$, $F_{i - 1, \ell_{pre}}$ be a frame, $T_{\ell_{pre} \rightarrow \ell}$ be the transition from $\ell_{pre}$ to $\ell$, and $t'$ be a primed formula. \\
 To get an interpolant $I$ for that query we first need to define $A$ and $B$, we do that by dividing the query the following way:
 \begin{equation*}
@@ -1243,7 +1260,7 @@ To get an interpolant $I$ for that query we first need to define $A$ and $B$, we
 Because we have proven the query unsatisfiable generating an interpolant is possible. \\
 With this technique our frames contain only interpolants
 \subsection{Procedures}
-Ultimate aims to verify C programs, most of which contain procedure calls that cannot be handled yet. \\ Procedures are presented like this: 
+\textsc{Ultimate} aims to verify C programs, most of which contain procedure calls that cannot be handled yet. \\ Procedures are presented like this: 
 
 \begin{figure}[H]
 \centering
@@ -1266,7 +1283,7 @@ node distance=2.5cm,%
  \label{procedure Ex}  
 
 There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
-Because of PDR's backwards-search nature we first find the return of a procedure, without knowing the context of the corresponding procedure and the prior state of the program's execution this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
+Because of PDR's backwards-search nature, we first find the \texttt{return} of a procedure, without knowing the effects of the corresponding procedure on variables, and the prior state of the program before the execution, this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
 
 A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFA, removing the procedure altogether.
 %
