@@ -180,7 +180,7 @@ or assignment, either wholly or excerpts thereof.
 \end{tabular}
 
 \chapter*{Abstract}
-foo bar
+
 
 \chapter*{Zusammenfassung}
 foo bar aber auf deutsch
@@ -1235,7 +1235,7 @@ As discussed in the improvements section of the lifted PDR algorithm, using weak
 We implemented the usage of weakest preconditions, but were met with problems regarding \texttt{assume}-statements: \\
 Let $\varphi$ and $\psi$ be first-order formulas and $wp$ be the weakest precondition function, we have: 
 \begin{equation}
-	wp(\varphi, \texttt{assume}\ \psi) = \psi \Rightarrow \varphi
+	wp(\varphi, \texttt{assume}\ \psi) = (\psi \Rightarrow \varphi)
 \end{equation}
 
 Now consider the proof-obligation \textbf{ToDo proof-obligation example with assume}
