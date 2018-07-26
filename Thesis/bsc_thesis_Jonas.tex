@@ -196,12 +196,12 @@ foo bar aber auf deutsch
 SAT-based model-checking is a useful technique for both software and hardware verification. Most modern software model-checkers are based on interpolation \cite{DBLP:conf/cav/VizelG14}. 
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}.
 Because it was so new, it came as a surprise that it won third place in the hardware
-model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is not based on interpolation but on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproved using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \\ \par
+model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is not based on interpolation but on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproved using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \par
 \textsc{\textsc{Ultimate}} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, transforming programs from one representation to another, or analyse programs.
  \textsc{\textsc{Ultimate}} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
 The goal of this Bachelor's Thesis is to implement a new analysis-plugin that is based on PDR but applicable for software in \textsc{\textsc{Ultimate}} and to compare it with the other existing techniques. \par
 
-This thesis is structured as follows...
+This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm, and discuss possible methods to make PDR on hardware more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discuss possible improvements. Chapter 4 focuses on our implementation of PDR in Ultimate, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on future work in Chapter 6.
 
 
 \chapter{\text{Background: PDR for Hardware}}
@@ -312,7 +312,7 @@ PDR maintains a sequence of frames [$F_0, ..., F_k$], called a \textsl{trace}, w
 \end{figure}
 
 Figure 2.2 shows the pseudo-code of the PDR algorithm. It starts on line 2 with checking for a \textsl{0-counter-example}, that means checking if $I \Rightarrow P$, by testing whether the formula $I \land \bar P$ is satisfiable. If it is, then $I$ is a 0-counter-example, the algorithm terminates.
-If the formula is unsatisfiable move on to line 3, where it initializes the first frame $F_0 = I$, fulfilling (I), and moving on. \par
+If the formula is unsatisfiable the algorithm continues on to line 3, where it initializes the first frame $F_0 = I$, fulfilling (I), and moving on. \par
 
 Let $[F_0, F_1, ..., F_k]$ be the current trace. \\ 
 The algorithm repeats the following three phases until termination: \par
@@ -325,7 +325,7 @@ The algorithm repeats the following three phases until termination: \par
 \end{itemize}
 
 
-\textsl{2. Blocking-Phase} \\ The blocking-phase is nested in the next transition phase, it can be found in lines 6 to 9. In it the algorithm checks whether there are proof-obligations. \\ If so, 
+\textsl{2. Blocking-Phase} \\ The blocking-phase is nested in the next transition phase, it can be found in lines 6 to 9. In it the algorithm checks whether there are proof-obligations, if so, 
 it takes proof-obligation $(b, i)$ and tries to block the bad state $b$ by checking if frame $F_{i-1}$ can reach $b$ in one transition, i.e., it tests $F_{i-1} \land T \land b'$ for satisfiability.
 
 \begin{itemize}
@@ -693,10 +693,10 @@ The lifted algorithm no longer works on boolean transition systems but on CFGs. 
 There are four main differences between bit-level PDR and lifted PDR:
 \begin{itemize}
 
-\item Instead of a global set of Frames $[F_0, ..., F_k]$ assign each program location $\ell \in L \backslash \{\ell_E\}$ a local set of frames $[F_{0, \ell}, ..., F_{k, \ell}]$. Each frame is now a cube of first-order formulas. As there are now multiple traces, proof-obligations get extended by another parameter, lifted proof-obligations are tuples $(t, \ell, i)$ where $t$ is a first-order formula, $\ell$ describes the location where $t$ has to be blocked, and $i$ is a frame number, called level in the lifted algorithm.
+\item Instead of a global set of Frames $[F_0, ..., F_k]$ assign each program location $\ell \in L \backslash \{\ell_E\}$ a local set of frames $[F_{0, \ell}, ..., F_{k, \ell}]$. Each frame is now a cube of first-order formulae. As there are now multiple traces, proof-obligations get extended by another parameter, lifted proof-obligations are tuples $(t, \ell, i)$ where $t$ is a first-order formula, $\ell$ describes the location where $t$ has to be blocked, and $i$ is a frame number, called level in the lifted algorithm.
 
 \item 
-Because the states in a CFG are no formulas, the lifted algorithm no longer blocks states but transitions, there are no bad states only bad transitions.
+Because the states in a CFG are no formulae, the lifted algorithm no longer blocks states but transitions, there are no bad states only bad transitions.
 
 \item Because of the structure of the CFA, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
 
@@ -1140,7 +1140,7 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 \section{Possible Improvements}
 \label{improvements}
 
-As shown above, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
+As shown before, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
 \textsl{Ternary Simulation} cannot be used on first-order formulae making it impossible to use it to reduce lifted proof-obligations. \par
 There are possible generalization techniques: \par
@@ -1149,7 +1149,7 @@ It is possible to remove a cube $c$ from a proof-obligation if no variable in $c
 
 
 \subsection{Weakest Precondition}
-The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating a single proof-obligation for every predecessor state and wasting time blocking each of them, calculate the weakest precondition which is a safe overapproximation of all predecessor states. \\ \\
+The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating a single proof-obligation for every predecessor state and wasting time blocking each of them, calculate the weakest precondition which is a safe overapproximation of all predecessor states. \\
 
 
 \subsection{Disjunctive Normal Form}
@@ -1169,6 +1169,7 @@ Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An in
 
 
 \chapter{PDR in \textsc{Ultimate}}
+In this chapter we introduce the program analysis framework \textsc{Ultimate}, and its tool \textsc{Ultimate Automizer}, we will show how we integrated PDR, and detail which improvements were considered.
 \section{Introduction \textsc{Ultimate}}
 \textsc{Ultimate} is a program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
 \begin{itemize}
@@ -1200,7 +1201,7 @@ To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin
  
 
 \section{Improvements}
-As we have seen in \hyperref[improvements]{section 4.4} there are a plethora of possible ways to make PDR faster. In this section we present implemented improvements to our approach.
+As we have seen in \hyperref[improvements]{section 4.4} there are a plethora of possible ways to make PDR more efficient. In this section we present implemented improvements to our approach.
 \subsection{Caching of Proof-Obligation Queue}
 We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked, we then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
 Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
@@ -1224,7 +1225,7 @@ With this memoization we save unnecessary calls to the SMT-solver and with that,
 \subsection{Using Preconditions}
 As discussed in section 3.4, using weakest preconditions is a really useful addition to the way proof-obligations are generated. \par
 We implemented the usage of weakest preconditions, but were met with problems regarding \texttt{assume}-statements: \\
-Let $\varphi$ and $\psi$ be first-order formulas and $wp$ be the weakest precondition function, we have: 
+Let $\varphi$ and $\psi$ be first-order formulae and $wp$ be the weakest precondition function, we have: 
 \begin{equation}
 	wp(\varphi, \texttt{assume}\ \psi) = (\psi \Rightarrow \varphi)
 \end{equation}
@@ -1286,7 +1287,7 @@ To block $(true, \ell_1, 1)$, we check the following formula for satisfiability:
 which is satisfiable, we would create a proof-obligation on level 0 and with that would terminate, resulting in the wrong outcome that $\ell_E$ is reachable. \par
 
 To fix this problem we do not use the weakest precondition but just the precondition, which is characterized like this: \\
-Let $\varphi$ and $\psi$ be first-order formulas and $pre$ be the precondition function, we have: 
+Let $\varphi$ and $\psi$ be first-order formulae and $pre$ be the precondition function, we have: 
 \begin{equation*}
 pre(\varphi, \texttt{assume}\ \psi) = (\varphi \land \psi)
 \end{equation*}
@@ -1301,6 +1302,33 @@ true\land x' := 0 \land x' = 1
 \end{equation*}
 which is unsatisfiable, and with that we have solved the issue and can continue working on the program. \par
 
+
+\chapter{Evaluation}
+\textbf{Nice Graph + How did we get those results, some interpretation and so forth}
+
+\begin{tikzpicture} 
+\begin{axis}[ymin=0
+] 
+
+\addplot table [y = cpu time , col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
+
+\addplot table [y = cpu time pdr, col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
+
+\end{axis} 
+\end{tikzpicture} 
+
+\begin{center}
+	\begin{tabu}{ccc}
+		\cmidrule(lr){2-3}
+		Technique & tests solved & solve time\\
+		\cmidrule{1-3}
+		Nested Interpolants & & \\
+		PDR with SMTInterpol&  &  \\
+		PDR with Z3 & & \\
+		\bottomrule
+	\end{tabu}
+\end{center}
+
 \chapter{Related Work}
 
 Closely related to our work is the approach by Lange et al. \cite{DBLP:conf/fmcad/0001NN15} who propose a true lifting of \texttt{IC3} from hardware to software by fully exploiting the control flow of a given program, meaning the control flow graph is not altered in any way. They extend \texttt{IC3} in the following ways. Instead of using a SAT-solver they use a SMT-solver. Additional information is no longer being used globally over all states, but every program location has its own local information, and if there exists an error location each iteration of the algorithm will have to prove that it is unreachable. \par
@@ -1311,12 +1339,6 @@ In 2012 the first ever approach of using PDR on first-order formulae was devised
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
-
-
-
-
-\chapter{Evaluation}
-\textbf{Nice Graph + How did we get those results, some interpretation and so forth}
 
 
 \chapter{Future Work}
