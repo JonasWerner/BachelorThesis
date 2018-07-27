@@ -36,6 +36,7 @@
 \usepackage{pgf}
 \usepackage{slantsc}
 \usepackage{geometry}
+\usepackage{amssymb}
 \sloppy
 
 \usepackage[english]{babel}
@@ -698,7 +699,7 @@ There are four main differences between bit-level PDR and lifted PDR:
 \item 
 Because the states in a CFG are no formulae, the lifted algorithm no longer blocks states but transitions, there are no bad states only bad transitions.
 
-\item Because of the structure of the CFA, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
+\item Because of the structure of the CFG, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
 
 \item The propagation-phase is slimmed, it only checks for termination. In the phase the algorithm checks the frames to find a level $i$ where all locations have a fixpoint, meaning  $F_{i, \ell} = F_{i-1, \ell}$ for every location $\ell \in L \backslash \{l_E \}$, $i$ is called a global fixpoint position. There is no more propagating formulae forward.
 \end{itemize}
@@ -925,7 +926,7 @@ Which is valid, with \texttt{true} being the weakest precondition, we generate t
 \pagebreak
 
 \subsection{Case 2: Error State is Unreachable}
-To show a CFA with an unreachable error state consider $\mathcal{B} = (X, L, G, \ell_0, \ell_E),$ where
+To show a CFG with an unreachable error state consider $\mathcal{B} = (X, L, G, \ell_0, \ell_E),$ where
 \begin{itemize}
 \item $X = \{x, y\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_E\}$
@@ -1188,14 +1189,14 @@ In this chapter we introduce the program analysis framework \textsc{Ultimate}, a
 \section{Implementation}
 To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin \textsl{Library-PDR}, that will be executed as part of \textsc{Ultimate Automizer} \cite{Heizmann:2013:SMC:2526861.2526864}. \par 
 \textsc{Ultimate Automizer}, \textsc{Automizer} in the following, is a software verifier that is capable of checking safety and liveness properties. It uses an automata-based \cite{DBLP:conf/cav/HeizmannHP13} instance of the CEGAR scheme, that works like this: \\
- In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible. \\
+ In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible.
  \begin{itemize}
 	\item If the trace is \textsl{feasible} then the program is proven unsafe, meaning there exists a possible program execution leading to an error location.
 	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, try to eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
  \end{itemize}
  \par
- Now, to check a trace for feasibility we use our newly integrated PDR-Library. 
- The PDR-Library is a path program focused technique, meaning that we do not consider the trace alone but also the context of the analyzed program...\textbf{ToDo} \\
+ Now, to check a trace for feasibility we use our newly integrated PDR-Library. \\
+ The PDR-Library is a path program focused technique, meaning that we do not consider the trace alone but also the context of the analyzed program. \\
  
  The sequence of interpolants are the entries in the frames on the global fixpoint.
  
@@ -1230,7 +1231,7 @@ Let $\varphi$ and $\psi$ be first-order formulae and $wp$ be the weakest precond
 	wp(\varphi, \texttt{assume}\ \psi) = (\psi \Rightarrow \varphi)
 \end{equation}
 
-To illustrate this issue, consider the following CFA: \\
+To illustrate this issue, consider the following CFG: \\
 
 \begin{figure}[H]
 	\centering
@@ -1304,19 +1305,78 @@ which is unsatisfiable, and with that we have solved the issue and can continue 
 
 
 \chapter{Evaluation}
-\textbf{Nice Graph + How did we get those results, some interpretation and so forth}
+In this section we show the efficiency of the implemented algorithm and compare it to Ultimate's Nested Interpolants. \\
+Our benchmarks were run on an AMD EPYC 7351P 16-Core Processor with 2.40 GHz using a timeout of 300 seconds, a memory limit of 8 GB, using 2 cores.
 
+
+\section{Comparison}
+\begin{figure}[H]
+\begin{minipage}[t]{0.5\textwidth}
 \begin{tikzpicture} 
-\begin{axis}[ymin=0
+\begin{axis}[%
+width=\textwidth, 
+height=\textwidth, 
+axis x line=center,
+axis y line=center,
+x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
+y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
+xtick={0, 5, ..., 170},
+ytick={0, 5, ..., 170},
+xlabel={CPU Time PDR SMTinterpol},
+ylabel={CPU Time Nested Interpolants},
+xmin=0,
+xmax=50,
+ymin=0,
+ymax=50,
+scaled y ticks = false 
+]
+
 ] 
 
-\addplot table [y = cpu time , col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
+\addplot [dotted, mark=none,domain=0:100] {x};
 
-\addplot table [y = cpu time pdr, col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
+\addplot[scatter,only marks]
+ table [y = cpu time, x = cpu time pdr, col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
 
 \end{axis} 
 \end{tikzpicture} 
+\end{minipage}
+ \hfill%
+\begin{minipage}[t]{0.5\textwidth}
+	\begin{tikzpicture} 
+	\begin{axis}[%
+	width=\textwidth, 
+	height=\textwidth, 
+	axis x line=center,
+	axis y line=center,
+	x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	y label style={at={(axis description cs:-0.25,.5)},rotate=90,anchor=south},
+	%xtick={0,10000000 , ..., 350000000},
+	%ytick={0, 10000000, ..., 350000000},
+	xlabel={Memory Usage PDR SMTinterpol},
+	ylabel={Memory Usage Nested Interpolants},
+	xmin=0,
+	xmax=350000000,
+	ymin=0,
+	ymax=350000000,
+	scaled y ticks = false 
+	]
+	
+	] 
+	
+	\addplot [dotted, mark=none,domain=0:350000000] {x};
+	
+	\addplot[scatter,only marks]
+	table [y = memUsage, x = memUsage PDR, col sep=semicolon]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesMemSpace.csv}; 
+	
+	\end{axis} 
+	\end{tikzpicture} 
+\end{minipage}
+\end{figure}
 
+
+\pagebreak
+\par
 \begin{center}
 	\begin{tabu}{ccc}
 		\cmidrule(lr){2-3}
@@ -1335,7 +1395,10 @@ Closely related to our work is the approach by Lange et al. \cite{DBLP:conf/fmca
 
 The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introduce a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
 
-In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al \cite{DBLP:conf/cav/CimattiG12} propose exploiting the \textbf{ToDo: what is a ART ? In this tree xy happens, and formula is yx} partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree where each node is coupled with a location and a first-order formula, resulting in a so called explicit-symbolic approach. Possible counterexample traces are disproved by computing under-approximations of predecessors. 
+In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al. \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree (ART). An ART $\mathcal{A}$ for a given program is a tree over $(V, E)$, such that $V$ is a set of triples $(pc, \varphi)$, where $pc$ is a program location, and $\varphi$ is a first-order formula, and $E$ is a set of transitions $(pc_i, \psi, pc_j)$. \\
+The root node is defined as $(pc_{init}, true)$. \\ For every non-leaf node $(pc_i, \varphi)$ holds $\varphi \land T_{pc_i \rightarrow pc_j} \models \psi'$, where $(pc_j, \psi)$ is a child node, and $T_{pc_i \rightarrow pc_j}$ is the transition formula. \\
+The algorithm first computes a possible path to an error location $pc_E$ $(pc_{init}, ..., pc_E)$ then constructs a trace $F = [ true, ..., \varphi_i, ..., \varphi_{n-1} ] $, by taking the coupled formula of each location. \\
+\textbf{ToDo proofobligaitons.}
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
@@ -1380,7 +1443,7 @@ node distance=2.5cm,%
 There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
 Because of PDR's backwards-search nature, we first find the \texttt{return} of a procedure, without knowing the effects of the corresponding procedure on variables, and the prior state of the program before the execution, this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
 
-A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFA, removing the procedure altogether.
+A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFG, removing the procedure altogether.
 %
 %Take for example the program: \\
 
@@ -1472,7 +1535,6 @@ A solution to that problem is, instead of using a linear approach, we modify our
 
 
 \chapter{Conclusion}
-
 
 \bibliographystyle{plain}
 \bibliography{bib}
