@@ -37,6 +37,7 @@
 \usepackage{slantsc}
 \usepackage{geometry}
 \usepackage{amssymb}
+\usepackage{subcaption}
 \sloppy
 
 \usepackage[english]{babel}
@@ -194,15 +195,15 @@ foo bar aber auf deutsch
 \mainmatter
 
 \chapter{Introduction}
-SAT-based model-checking is a useful technique for both software and hardware verification. Most modern software model-checkers are based on interpolation \cite{DBLP:conf/cav/VizelG14}. 
+SAT-based model-checking is a useful technique for both software and hardware verification. 
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}.
 Because it was so new, it came as a surprise that it won third place in the hardware
-model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is not based on interpolation but on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproved using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \par
+model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is based on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproven using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \par
 \textsc{\textsc{Ultimate}} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, transforming programs from one representation to another, or analyse programs.
  \textsc{\textsc{Ultimate}} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
 The goal of this Bachelor's Thesis is to implement a new analysis-plugin that is based on PDR but applicable for software in \textsc{\textsc{Ultimate}} and to compare it with the other existing techniques. \par
 
-This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm, and discuss possible methods to make PDR on hardware more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discuss possible improvements. Chapter 4 focuses on our implementation of PDR in Ultimate, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on future work in Chapter 6.
+This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm and discuss possible methods to make it more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discuss possible improvements. Chapter 4 focuses on our implementation of PDR in Ultimate, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on possible future work in Chapter 6.
 
 
 \chapter{\text{Background: PDR for Hardware}}
@@ -1305,13 +1306,20 @@ which is unsatisfiable, and with that we have solved the issue and can continue 
 
 
 \chapter{Evaluation}
-In this section we show the efficiency of the implemented algorithm and compare it to Ultimate's Nested Interpolants. \\
-Our benchmarks were run on an AMD EPYC 7351P 16-Core Processor with 2.40 GHz using a timeout of 300 seconds, a memory limit of 8 GB, using 2 cores.
-
+In this chapter we evaluate our implementation and compare it to \textsc{Ultimate}'s Nested Interpolants. \\
+We benchmarked PDR with two different SMT-solvers: 
+\begin{itemize}
+\item SMTInterpol \cite{Zitat03}
+\item Z3 \cite{Zitat04}
+\end{itemize}
+The difference between those is that SMTIterpol interpolates better and is integrated into \textsc{Ultimate}, but on the other hand cannot deal with quantors and non-linear queries. We however focus mainly on SMTInterpol.
 
 \section{Comparison}
+We used a testing set containing 250 programs.
 \begin{figure}[H]
 \begin{minipage}[t]{0.5\textwidth}
+	\hspace*{-1.5cm}
+	\subcaptionbox{CPU Time Comparison.} {
 \begin{tikzpicture} 
 \begin{axis}[%
 width=\textwidth, 
@@ -1322,8 +1330,8 @@ x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
 y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
 xtick={0, 5, ..., 170},
 ytick={0, 5, ..., 170},
-xlabel={CPU Time PDR SMTinterpol},
-ylabel={CPU Time Nested Interpolants},
+xlabel={PDR SMTInterpol},
+ylabel={Nested Interpolants},
 xmin=0,
 xmax=50,
 ymin=0,
@@ -1339,10 +1347,12 @@ scaled y ticks = false
  table [y = cpu time, x = cpu time pdr, col sep=semicolon, /pgf/number format/read comma as period]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesOnlyFinished.csv}; 
 
 \end{axis} 
-\end{tikzpicture} 
+\end{tikzpicture}  }
 \end{minipage}
  \hfill%
 \begin{minipage}[t]{0.5\textwidth}
+	\hspace*{-1cm}
+	  \subcaptionbox{Memory Usage Comparison.}{
 	\begin{tikzpicture} 
 	\begin{axis}[%
 	width=\textwidth, 
@@ -1351,15 +1361,16 @@ scaled y ticks = false
 	axis y line=center,
 	x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
 	y label style={at={(axis description cs:-0.25,.5)},rotate=90,anchor=south},
-	%xtick={0,10000000 , ..., 350000000},
+	%xtick={0, 1 * 10^8},
 	%ytick={0, 10000000, ..., 350000000},
-	xlabel={Memory Usage PDR SMTinterpol},
-	ylabel={Memory Usage Nested Interpolants},
+	xlabel={PDR SMTInterpol},
+	ylabel={Nested Interpolants},
 	xmin=0,
 	xmax=350000000,
 	ymin=0,
 	ymax=350000000,
-	scaled y ticks = false 
+	scaled y ticks = false,
+	scaled x ticks = false 
 	]
 	
 	] 
@@ -1370,24 +1381,41 @@ scaled y ticks = false
 	table [y = memUsage, x = memUsage PDR, col sep=semicolon]  {EvalData/TableAndDifWithoutZ3AndWithoutDupesMemSpace.csv}; 
 	
 	\end{axis} 
-	\end{tikzpicture} 
+	\end{tikzpicture} }
 \end{minipage}
+\caption{Statistics collected from successful benchmarks.}
 \end{figure}
 
 
-\pagebreak
-\par
+\vspace{2cm}
+
+\begin{figure}[H]
 \begin{center}
 	\begin{tabu}{ccc}
 		\cmidrule(lr){2-3}
 		Technique & tests solved & solve time\\
 		\cmidrule{1-3}
-		Nested Interpolants & & \\
-		PDR with SMTInterpol&  &  \\
-		PDR with Z3 & & \\
+		Nested Interpolants & 165/250 & 3508s \\
+		PDR SMTInterpol& 35/250  & 496s \\
+		PDR Z3 & 62/250& 1322s\\
 		\bottomrule
 	\end{tabu}
 \end{center}
+\caption{Evaluation Results.}
+\end{figure}
+
+\section{Discussion}
+In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques, there are however some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because PDR does not yet use interpolants, we have trouble solving programs that contain loops, as we have to disprove every single loop iteration, making verification very time consuming. Both techniques were more or less on par regarding memory consumption. \par
+In Figure 5.2 we see that PDR generally only solved $\frac{1}{7}$ of the benchmarks using SMTInterpol and $\frac{1}{4}$ using Z3. This is because our benchmarkset contained programs with procedures, a procedure is a call to another function that is not the main program. Our PDR implementation can not yet deal with such programs, and because of that cannot deal with a lot of the benchmarks. \par
+The average time spent per test is promising: 
+\begin{equation*}
+\text{Nested Interpolants:}\ 3508s / 165tests = 21s/test
+\end{equation*}
+\begin{equation*}
+\text{PDR SMTInterpol:}\ 496s / 35tests = 14s/test
+\end{equation*}
+\pagebreak
+
 
 \chapter{Related Work}
 
