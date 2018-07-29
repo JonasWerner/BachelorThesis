@@ -182,10 +182,13 @@ or assignment, either wholly or excerpts thereof.
 \end{tabular}
 
 \chapter*{Abstract}
+Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}, which was surprisingly efficient, winning third place in the hardware
+model-checking competition (HWMCC) at CAV 2010 \cite{cav}. This sparked interest in using the underlaying technique, Property Directed Reachability, on software.
+This thesis aims at lifting Property Directed Reachability from hardware to software and to implement a Property Directed Reachability-based model-checker in the software analysis framework \textsc{Ultimate} \cite{Zitat02}.
 
 
 \chapter*{Zusammenfassung}
-foo bar aber auf deutsch
+Jüngst wurde ein neuer Hardware Verifizierungsalgorithmus names IC3 von Aaron Bradley entwickelt. Dieser Algorithmus überraschte durch seine Effizienz, gewann den dritten Preis in der Model-checking competition (HWMCC) bei der CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability von Hardware auf Software anzuheben, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyse Framework \textsc{Ultimate} zu implementieren.
 
 
 
@@ -788,7 +791,7 @@ To illustrate the lifted algorithm further consider the updated pseudo-code: \\ 
 \end{figure}
 
 \section{Example}
-\textbf{ToDo Intro text}
+In this section we show an application of the lifted algorithm on two cases, one where the error state is reachable, and one where it is not.
 \subsection{Case 1: Error State is Reachable}
 To show an application of the lifted algorithm reconsider the example in \hyperref[ex7]{Figure 4.1}, we have CFG  $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
 \begin{itemize}
@@ -1158,14 +1161,59 @@ The definition of the lifted algorithm above already contains an improvement, us
 It is possible to transform cubes into clauses by negating them. When there is a large proof-obligation we can use this to generate the disjunctive normal form and split the large obligation into smaller ones by taking each cube in the disjunctive normal form as a new proof-obligation, saving time because smaller queries are solved faster.
 
 \subsection{Interpolation}
+Adding the negated proof-obligation to the frames works well in most cases. Consider Figure 3.4, we see a simple program with a loop. The initial proof-obligation on level $i$ is $(x = 1, \ell_1, i)$, because $\ell_1$ has two predecessorswe have to check:
+\begin{equation}
+	F_{\ell_1, i - 1} \land x' := x + 1 \land x' = 1
+\end{equation}
+\begin{equation}
+F_{\ell_0, i - 1} \land x' := 2 \land x' = 1
+\end{equation}
+for satisfiability. \\
+Formula (3.1) is satisfiable until we get a proof-obligation on level 1, because $F_{\ell_1, 0}$ is always false. \\
+Formula (3.2) is never satisfiable, in each level we add $x \neq 1$ to $\ell_1$'s frames. That term is not strong enough to block the chain of satisfiable obligations of (3.1) in the next level, which is inefficient.
+
+\begin{figure}[H]
+	\centering
+	\hspace*{3cm}
+	\begin{tikzpicture}[%
+	->,
+	>=stealth', shorten >=1pt, auto,
+	node distance=2cm, scale=1, 
+	transform shape, align=center,    
+	smallnode/.style={inner sep=1.4}
+	]
+	\node[initial above, state](1){$\ell_0$};
+	
+	\node[state] (2) [below of=1] {$\ell_1$};
+	
+	\node[state] (3) [below of=2] {$\ell_E$};
+	
+	
+	
+	
+	\path (1) edge node {$x := 2$} (2)
+	(2) edge [loop right] node {$x := x + 1$} (2)
+	(2) edge [edge label={$x = 1$}, swap] node {} (3)
+	;
+	
+	
+	);
+	\end{tikzpicture}
+	\caption{Simple Program.}
+\end{figure}
+\label{exInterpol} 
+
+Instead consider using interpolants.
 Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An interpolant $I$ for $(A, B)$ is a formula fulfilling the following characteristics:
 \begin{itemize}
-\item $A \Rightarrow I$
-\item $I \land B$ is unsatisfiable
-\item $I$ consists only of variables found in $A \cap B$
+	\item $A \Rightarrow I$
+	\item $I \land B$ is unsatisfiable
+	\item $I$ consists only of variables found in $A \cap B$
 \end{itemize}
 
-\textbf{still ToDo}
+Now an interpolant for the unsatisfiable formula (3.2) would be $x = 2$, if we add that to $\ell_1$'s frames, we would be able to block formula (3.1) much earlier. \\
+
+
 
 \pagebreak
 
@@ -1196,8 +1244,8 @@ To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin
 	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, try to eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
  \end{itemize}
  \par
- Now, to check a trace for feasibility we use our newly integrated PDR-Library. \\
- The PDR-Library is a path program focused technique, meaning that we do not consider the trace alone but also the context of the analyzed program. \\
+ Now, to check a trace for feasibility we use our newly integrated PDR-Library. \par
+ A path-program is
  
  The sequence of interpolants are the entries in the frames on the global fixpoint.
  
@@ -1312,7 +1360,7 @@ We benchmarked PDR with two different SMT-solvers:
 \item SMTInterpol \cite{Zitat03}
 \item Z3 \cite{Zitat04}
 \end{itemize}
-The difference between those is that SMTIterpol interpolates better and is integrated into \textsc{Ultimate}, but on the other hand cannot deal with quantors and non-linear queries. We however focus mainly on SMTInterpol.
+The difference between those is that SMTIterpol interpolates better and is integrated into \textsc{Ultimate}, but on the other hand cannot deal with quantors and non-linear queries. We focus mainly on SMTInterpol.
 
 \section{Comparison}
 We used a testing set containing 250 programs.
@@ -1407,13 +1455,7 @@ scaled y ticks = false
 \section{Discussion}
 In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques, there are however some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because PDR does not yet use interpolants, we have trouble solving programs that contain loops, as we have to disprove every single loop iteration, making verification very time consuming. Both techniques were more or less on par regarding memory consumption. \par
 In Figure 5.2 we see that PDR generally only solved $\frac{1}{7}$ of the benchmarks using SMTInterpol and $\frac{1}{4}$ using Z3. This is because our benchmarkset contained programs with procedures, a procedure is a call to another function that is not the main program. Our PDR implementation can not yet deal with such programs, and because of that cannot deal with a lot of the benchmarks. \par
-The average time spent per test is promising: 
-\begin{equation*}
-\text{Nested Interpolants:}\ 3508s / 165tests = 21s/test
-\end{equation*}
-\begin{equation*}
-\text{PDR SMTInterpol:}\ 496s / 35tests = 14s/test
-\end{equation*}
+There are 7 benchmarks that only PDR could solve as they timed out with Nested Interpolants, which is promising.
 \pagebreak
 
 
@@ -1423,10 +1465,16 @@ Closely related to our work is the approach by Lange et al. \cite{DBLP:conf/fmca
 
 The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introduce a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
 
-In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al. \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree (ART). An ART $\mathcal{A}$ for a given program is a tree over $(V, E)$, such that $V$ is a set of triples $(pc, \varphi)$, where $pc$ is a program location, and $\varphi$ is a first-order formula, and $E$ is a set of transitions $(pc_i, \psi, pc_j)$. \\
-The root node is defined as $(pc_{init}, true)$. \\ For every non-leaf node $(pc_i, \varphi)$ holds $\varphi \land T_{pc_i \rightarrow pc_j} \models \psi'$, where $(pc_j, \psi)$ is a child node, and $T_{pc_i \rightarrow pc_j}$ is the transition formula. \\
-The algorithm first computes a possible path to an error location $pc_E$ $(pc_{init}, ..., pc_E)$ then constructs a trace $F = [ true, ..., \varphi_i, ..., \varphi_{n-1} ] $, by taking the coupled formula of each location. \\
-\textbf{ToDo proofobligaitons.}
+In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al. \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree (ART). An ART $\mathcal{A}$ for a given program is a tree over $(V, E)$, such that $V$ is a set of triples $(pc, \varphi)$, where $pc$ is a program location,  $\varphi$ is a first-order formula, and a set of transitions $E \subseteq pc_i \times \psi \times pc_j$. \\
+The root node is defined as $(pc_{init}, true)$. \\ For every non-leaf node $(pc_i, \varphi)$ holds $\varphi \land T_{pc_i \rightarrow pc_j} \models \psi'$, for child node $(pc_j, \psi)$. $T_{pc_i \rightarrow pc_j}$ being the transition formula. \\
+The proposed algorithm first computes a possible path to an error location $pc_E$ $(pc_{init}, ..., pc_E)$ then constructs a trace $F = [ true, ..., \varphi_i, ..., \varphi_{n-1} ] $, by taking the coupled formula of each location. \\
+A proof-obligation in this approach is a tuple $(\varphi, T_{pc_j \rightarrow pc_i})$ \\
+To block a proof-obligation $(\varphi, T_{pc_i \rightarrow pc_j})$ the algorithm checks 
+\begin{equation*}
+F[i] \land T_{pc_i \rightarrow pc_j} \models \neg \varphi'
+\end{equation*}
+If that formula is satisfiable, the proof-obligation is blocked and the algorithm strengthens its trace $F[i]$ with $\neg c$, and if it is unsatisfiable a new proof-obligation is generated. \\
+We see this approach is similar to ours, except that it maintains a global trace like the original PDR and that it works on an ART, omitting levels. \par
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
@@ -1439,12 +1487,11 @@ We have implemented some improvement methods, but there are still more possible 
 \subsection{Interpolation}
 \textsc{Ultimate} already supports ways of computing an interpolant for two given formulae. The idea is, that everytime a query to the SMT-solver is unsatisfiable we, instead of adding the negated proof-obligation to the frames, add a calculated interpolant for the query. \par
 Let $\ell$ and $\ell_{pre}$ be two locations where $\ell_{pre}$ is a predecessor of $\ell$, $F_{i - 1, \ell_{pre}}$ be a frame, $T_{\ell_{pre} \rightarrow \ell}$ be the transition from $\ell_{pre}$ to $\ell$, and $t'$ be a primed formula. \\
-To get an interpolant $I$ for that query we first need to define $A$ and $B$, we do that by dividing the query the following way:
+To get an interpolant $I$ for that query we first need to define formulae $A$ and $B$, we do that by dividing the query the following way:
 \begin{equation*}
 \underbrace{F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell}}_{A} \land \underbrace{t'}_B
 \end{equation*}
-Because we have proven the query unsatisfiable generating an interpolant is possible. \\
-With this technique our frames contain only interpolants
+This helps to save time on loops as we have seen in section 3.4.4.
 \subsection{Procedures}
 \textsc{Ultimate} aims to verify C programs, most of which contain procedure calls that cannot be handled yet. \\ Procedures are presented like this: 
 
