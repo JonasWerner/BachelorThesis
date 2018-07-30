@@ -183,12 +183,12 @@ or assignment, either wholly or excerpts thereof.
 
 \chapter*{Abstract}
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}, which was surprisingly efficient, winning third place in the hardware
-model-checking competition (HWMCC) at CAV 2010 \cite{cav}. This sparked interest in using the underlaying technique, Property Directed Reachability, on software.
+model-checking competition (HWMCC) at CAV 2010 \cite{cav}. This sparked interest in using the underlying technique, Property Directed Reachability, on software.
 This thesis aims at lifting Property Directed Reachability from hardware to software and to implement a Property Directed Reachability-based model-checker in the software analysis framework \textsc{Ultimate} \cite{Zitat02}.
 
 
 \chapter*{Zusammenfassung}
-Jüngst wurde ein neuer Hardware Verifizierungsalgorithmus names IC3 von Aaron Bradley entwickelt. Dieser Algorithmus überraschte durch seine Effizienz, gewann den dritten Preis in der Model-checking competition (HWMCC) bei der CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability von Hardware auf Software anzuheben, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyse Framework \textsc{Ultimate} zu implementieren.
+Vor Kurzem wurde ein neuer Hardware Verifizierungsalgorithmus names \texttt{IC3} von Aaron Bradley entwickelt. Dieser Algorithmus überraschte durch seine Effizienz und gewann den dritten Preis in der Model-checking competition (HWMCC) bei der CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability von Hardware auf Software anzuheben, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyse Framework \textsc{Ultimate} zu implementieren.
 
 
 
@@ -202,32 +202,37 @@ SAT-based model-checking is a useful technique for both software and hardware ve
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}.
 Because it was so new, it came as a surprise that it won third place in the hardware
 model-checking competition (HWMCC) at CAV 2010 \cite{cav}. \\ The model-checking method behind \texttt{IC3} is called \textsl{Property Directed Reachability}, \textsl{PDR} for short, which is based on backward-search. It tries to find inductive invariants by constructing an over-approximation of reachable states. During this construction, possible counter-examples are disproven using Boolean SAT queries. Because this approach turned out to be very efficient for hardware verification, it could be interesting for software verification as well. \par
-\textsc{\textsc{Ultimate}} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, transforming programs from one representation to another, or analyse programs.
+\textsc{\textsc{Ultimate}} \cite{Zitat02} is a software analysis framework consisting of multiple plugins that perform steps of a program analysis, like parsing source code, transforming programs from one representation to another, or analyze programs.
  \textsc{\textsc{Ultimate}} already has analysis-plugins using different model-checking techniques like trace abstraction~\cite{DBLP:conf/cav/HeizmannHP13} or lazy interpolation~\cite{DBLP:conf/popl/HenzingerJMS02}.
 The goal of this Bachelor's Thesis is to implement a new analysis-plugin that is based on PDR but applicable for software in \textsc{\textsc{Ultimate}} and to compare it with the other existing techniques. \par
 
-This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm and discuss possible methods to make it more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discuss possible improvements. Chapter 4 focuses on our implementation of PDR in Ultimate, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on possible future work in Chapter 6.
+This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm and discuss possible methods to make it more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discussing possible improvements. Chapter 4 focuses on our implementation of PDR in \textsc{Ultimate}, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on possible future work in Chapter 6.
 
 
+\hbadness 100pt
 \chapter{\text{Background: PDR for Hardware}}
 \label{PDR}
-In this section we describe how PDR works as a hardware-checker, which requires propositional logic, so that every variable is a boolean.
+In this section we describe how PDR works on hardware, which requires propositional logic, so that every variable is a boolean.
 
 
 
 \section{Preliminaries} \vspace{-5mm}
 First some preliminary definitions and notations:  \par
 
-A \textsl{boolean transition system} is a tuple $S = (X, I, T)$, where $X$ is a finite set of boolean variables, $I$ is a disjunction representing the \textsl{initial state}, and $T$ is a propositional formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, called transition relation, that describes updates to the variables.
+A \textsl{boolean transition system} is a tuple $S = (X, I, T)$, consisting of
+\begin{itemize}
+	\item a finite set of boolean variables $X$
+	\item a conjunction representing the \textsl{initial state} $I$
+	\item a propositional formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, called transition relation, that describes updates to the variables $T$
+\end{itemize}
 \par
-For example, consider the transition system $U = (X, I, T)$ where
+Consider the transition system $U = (X, I, T)$ in Figure 2.1 where
 \begin{itemize}
 	\item $ X= \{x_1, x_2, x_3\}$
 	\item $I = \bar x_1 \land \bar x_2 \land \bar x_3$
 	\item $T = (x_1 \lor \neg x_2' ) \land ( \bar x_1 \lor x_2') \land (x_2 \lor \bar x_3') \land ( \bar x_2 \lor x_3')$
 \end{itemize}
 \pagebreak
-With corresponding transition graph:
 
 \begin{figure}[H]
 	\centering
@@ -239,7 +244,7 @@ With corresponding transition graph:
 \end{figure}
 
 We call a variable or its negation, e.g., $x \text{ or } \bar y$, a \textsl{literal} \\
-Furthermore, a conjunction of literals is called a \textsl{cube}, e.g.,  $x \land \bar y$, and a disjunction of literals a \textsl{clause}, e.g. $x \lor \bar y$. \\
+Furthermore, a conjunction of literals is called a \textsl{cube}, and a disjunction a \textsl{clause}. \\
 Note that the negation of a cube is a clause and vice versa. \par
 
 Given a propositional formula $\phi$ over $X$ we get a \textsl{primed formula} $\phi'$ by replacing each variable with its corresponding variable in $X'$. \par
@@ -255,7 +260,7 @@ is satisfiable.\par
 
 Given a propositional formula $P$ over $X$, called \textsl{property}, we want
 to verify that every state in $S$ that is reachable from
-$I$ satisfies $P$ such that, $P$ describes a finite set of \textsl{good states}, conversely $\bar P$ represent a finite set of $bad$ states.  \\ 
+$I$ satisfies $P$. $\bar{P}$ describes a set of \textsl{bad} states.  \\ 
 Regarding $U$, let $P = \bar x_1 \lor \bar x_2 \lor \bar x_3$ be given, making $\bar P = x_1 \land x_2 \land x_3$ a bad state. \\ 
 In the next section we explain how PDR can be used to show that either $\bar P$ is unreachable from $I$ or that there exists a sequence of transitions leading to $\bar P$ as counter-example.
 
@@ -316,7 +321,7 @@ PDR maintains a sequence of frames [$F_0, ..., F_k$], called a \textsl{trace}, w
 	\caption{Bit-Level PDR Algorithm.}
 \end{figure}
 
-Figure 2.2 shows the pseudo-code of the PDR algorithm. It starts on line 2 with checking for a \textsl{0-counter-example}, that means checking if $I \Rightarrow P$, by testing whether the formula $I \land \bar P$ is satisfiable. If it is, then $I$ is a 0-counter-example, the algorithm terminates.
+Figure 2.2 shows the pseudo-code of the PDR algorithm. It starts in line 2 with checking for a \textsl{0-counter-example}, that means checking if $I \Rightarrow P$, by testing whether the formula $I \land \bar P$ is satisfiable. If it is, then $I$ is a 0-counter-example, the algorithm terminates.
 If the formula is unsatisfiable the algorithm continues on to line 3, where it initializes the first frame $F_0 = I$, fulfilling (I), and moving on. \par
 
 Let $[F_0, F_1, ..., F_k]$ be the current trace. \\ 
@@ -326,7 +331,7 @@ The algorithm repeats the following three phases until termination: \par
 \begin{itemize}
 \item If the formula is \textsl{satisfiable}, for each satisfying assignment \\ $\vec{x} = (x_1, x_2, ..., x_{|X|}, x_1', x_2', ..., x'_{|X'|})$ the algorithm gets a new bad state \\ $a = x_1 \land x_2 \land ... \land x_{|X|}$ and creates tuple $(a, k)$, this tuple is called a \textsl{proof-obligation}.
 
-\item If the formula is \textsl{unsatisfiable}, the procedure continues with the next phase. \\
+\item If the formula is \textsl{unsatisfiable}, the algorithm continues with the next phase. \\
 \end{itemize}
 
 
@@ -340,16 +345,13 @@ it takes proof-obligation $(b, i)$ and tries to block the bad state $b$ by check
 
 \end{itemize}
 
-This continues recursively until either a proof-obligation $(d, 0)$ is created proving that there exists a counter-example terminating the algorithm, or
+This continues recursively until either a proof-obligation $(d, 0)$ is created, proving that there exists a counter-example terminating the algorithm, or
 there is no proof-obligation left. \\
 
 \textsl{3. Propagation-Phase}\\ Found in the final code-block of the pseudo-code from line 10 to 16. In it the algorithm adds a new frame $F_{k + 1} = P$ and propagates clauses from $F_{k}$ forward, meaning for all clauses $c$ in $F_{k}$ it checks $F_{k} \land T \land \bar c'$ for satisfiability. If that conjunction is unsatisfiable, the algorithm strengthens $F_{k+1}$ with $c$: $F_{k+1} = F_{k+1} \land c$, if it is satisfiable the algorithm does nothing and continues with the next clause. Because of this phase rule (II) is fulfilled.\\ \\
 After propagating all possible clauses, if $F_{k+1} \equiv F_{k}$ the algorithm found a fixpoint and terminates returning that $P$ always holds with $F_k$ being the inductive invariant. \\ \\
 
 \pagebreak
-
-To illustrate the procedure further consider the pseudo-code: \\
-
 
 \section{Examples}
 
@@ -589,8 +591,7 @@ The algorithm terminates returning that the property always holds and
  being an inductive invariant.
 
 \section{Possible Improvements}
-In this section we discuss possible improvements to the shown algorithm to make it more efficient, because
-the most time consuming part of the PDR algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small.
+In this section we discuss possible improvements to the shown algorithm to make it more efficient. The most time consuming part of the PDR algorithm is the solving of SAT-queries, the larger the query the more time it takes. To improve this there are several ways to keep SAT-queries small.
 
 \subsection{Generalization of States}
 Blocking one state at a time is ineffective.  \\
@@ -635,19 +636,30 @@ Because there is no clause being unknown, $x_3$ can be removed from the proof-ob
 
 
 \chapter{PDR for Software} \label{sec3}
-We see that PDR is a useful and efficient hardware-model checking technique. If we want to use it on software, we need to \textsl{lift} the algorithm from bit-level propositional logic to first-order logic. We base our approach on the technique described by Lange et al ~\cite{DBLP:conf/fmcad/0001NN15}. There are however other ways to accomplish this, see chapter 5 for an overview of other techniques. \par To use PDR on software we first need some new definitions and other preliminaries.
+After we have seen how PDR works on systems based on propositional logic, we show in this chapter how to extend the approach to work on systems based on first-order logic. We need to \textsl{lift} the approach from bit-level to first-order logic. We base our approach on the technique described by Lange et al ~\cite{DBLP:conf/fmcad/0001NN15}. There are however other ways to accomplish this, see chapter 5 for an overview of other techniques. \par To use PDR on software we first need some new definitions and other preliminaries.
 
 \section{Preliminaries}
-A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a tuple, consisting of a finite set of variables $X$, a finite set of locations $L$, a finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$, an initial location $\ell_0 \in L$, and an error location $\ell_E \in L$.\par
 
-For example consider the CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
+
+The lifted algorithm no longer works on boolean transition systems but on control flow graphs.
+
+A control flow graph (CFG) $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ is a graph, consisting of: 
+\begin{itemize}
+\item A finite set of variables $X$
+\item A finite set of locations $L$
+\item A finite set of transitions $G \subseteq L \times FO \times L$, $FO$ being a quantifier free first-order logic formula over variables in $X$ and $X' = \{x \in X \ | \ x' \in X'\}$
+\item An initial location $\ell_0 \in L$
+\item  An error location $\ell_E \in L$
+\end{itemize}
+The lifted algorithm tries to prove whether $\ell_E$ is reachable by finding a feasible path from $\ell_0$ to $\ell_E$. \par
+
+For example consider the CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ in Figure 3.1, where
 \begin{itemize}
 \item $X = \{x\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_3, \ell_E\}$
-\item $G = \{(\ell_0, x' := 0, \ell_1), (\ell_1, x' := x + 1, \ell_2), (\ell_2, x = 1, \ell_E), (\ell_2, x \neq 1, \ell_3) \} $
+\item $G = \{(\ell_0, x' = 0, \ell_1), (\ell_1, x' = x + 1, \ell_2), (\ell_2, x = 1, \ell_E), (\ell_2, x \neq 1, \ell_3) \} $
 \end{itemize}
 \pagebreak
-with the graph: \\
 
 \begin{figure}[H]
 \centering
@@ -658,7 +670,7 @@ with the graph: \\
     transform shape, align=center,    
 smallnode/.style={inner sep=1.4}
   ]
-    \node[initial above, state](1){$\ell_0$};
+    \node[state](1){$\ell_0$};
     
     \node[state] (2) [below of=1] {$\ell_1$};
     
@@ -669,8 +681,8 @@ smallnode/.style={inner sep=1.4}
     \node[state] (5) [below left of=3] {$\ell_E$};
     
     
-          \path (1) edge node {$x := 0$} (2)
-          (2) edge node {$x := x + 1$} (3)
+          \path (1) edge node {$x = 0$} (2)
+          (2) edge node {$x = x + 1$} (3)
           (3) edge node {$x \neq 1$} (4)
           (3) edge [edge label={$x = 1$}, swap] node {} (5)
           ;
@@ -692,112 +704,110 @@ T_{\ell_1 \rightarrow \ell_2} = \begin{cases} (\ell_1, t, \ell_2), & (\ell_1, t,
 Resulting in the global transition formula: \\
 $$ T = \bigvee_{(\ell_1, t, \ell_2) \in G} T_{\ell_1 \rightarrow \ell_2}$$
 
-The lifted algorithm no longer works on boolean transition systems but on CFGs. It tries to prove whether $\ell_E$ is reachable, by finding a feasible path from $\ell_0$ to $\ell_E$.
-
 \section{Lifted Algorithm}
-There are four main differences between bit-level PDR and lifted PDR:
+
+To lift our on propositional logic based PDR algorithm to first-order logic we have to modify four aspects of the algorithm:
 \begin{itemize}
-
-\item Instead of a global set of Frames $[F_0, ..., F_k]$ assign each program location $\ell \in L \backslash \{\ell_E\}$ a local set of frames $[F_{0, \ell}, ..., F_{k, \ell}]$. Each frame is now a cube of first-order formulae. As there are now multiple traces, proof-obligations get extended by another parameter, lifted proof-obligations are tuples $(t, \ell, i)$ where $t$ is a first-order formula, $\ell$ describes the location where $t$ has to be blocked, and $i$ is a frame number, called level in the lifted algorithm.
-
-\item 
-Because the states in a CFG are no formulae, the lifted algorithm no longer blocks states but transitions, there are no bad states only bad transitions.
-
-\item Because of the structure of the CFG, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
-
-\item The propagation-phase is slimmed, it only checks for termination. In the phase the algorithm checks the frames to find a level $i$ where all locations have a fixpoint, meaning  $F_{i, \ell} = F_{i-1, \ell}$ for every location $\ell \in L \backslash \{l_E \}$, $i$ is called a global fixpoint position. There is no more propagating formulae forward.
+	
+	\item Instead of a global set of Frames $[F_0, ..., F_k]$ we assign each program location $\ell \in L \backslash \{\ell_E\}$ a local set of frames $[F_{0, \ell}, ..., F_{k, \ell}]$. Each frame is now a cube of first-order formulae. As there are now multiple traces, proof-obligations get extended by another parameter, lifted proof-obligations are tuples $(t, \ell, i)$ where $t$ is a first-order formula, $\ell$ describes the location where $t$ has to be blocked, and $i$ is a frame number, called level in the lifted algorithm.
+	
+	\item 
+	Because the states in a CFG are no formulae, the lifted algorithm no longer blocks states but transitions, there are no bad states only bad transitions.
+	
+	\item Because of the structure of the CFG, it is already known which states lead to the error location, as it is easy to extract the transitions in $G$ that have $\ell_E$ as target, making the next transition phase, that was used to find proof-obligations before, obsolete. \\ If there exists a transition to $\ell_E$ there will be an initial proof-obligation in each iteration of the algorithm, making the blocking-phase no longer optional.
+	
+	\item The propagation-phase is slimmed, it only checks for termination. In the phase the algorithm checks the frames to find a level $i$ where all locations have a fixpoint, meaning  $F_{i, \ell} = F_{i-1, \ell}$ for every location $\ell \in L \backslash \{l_E \}$, $i$ is called a global fixpoint position. There is no more propagating formulae forward.
 \end{itemize}
 
-\hspace*{5cm}
 
-\textsl{In more detail}: \\
-Given a CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ we want to check if $\ell_E$ is reachable: \par
-Again start with checking for a 0-counter-example, this is easily done by looking at $\ell_0$ if $\ell_0 = \ell_E$ terminate and return that $\ell_E$ is indeed reachable, if $\ell_0 \neq \ell_E$ initialize level 0 frames for all locations $\ell \in L \backslash \{\ell_0, \ell_E\}$ as \texttt{false}, and for $\ell_0$ as \texttt{true}. \par
+\begin{figure}[H]
+	\begin{algorithm}[H] 
+		\begin{algorithmic}[1]
+			\Procedure{lifted-PDR-prove}{$L, G$}
+			\State check for 0-counter-example
+			\State $\ell_0.trace.push(new\ frame(true))$
+			\ForAll {$\ell \in L \backslash \{ \ell_0, \ell_E\}$}
+			\State $\ell.trace.push(new\ frame(false))$
+			\EndFor
+			\State $level := 0$
+			\Statex
+			\Loop
+			\ForAll {$\ell \in L \backslash \{\ell_E\}$}
+			\State $\ell.trace.push(new\ frame(true))$
+			\EndFor
+			\State $level:= level + 1$
+			\State get initial proof-obligations 
+			\Statex
+			\While {$\exists$ proof-obligation $(t, \ell, i),$} 
+			\State Recursively block proof-obligation
+			\If {a proof-obligation$(p, \ell, 0)$ is generated}
+			\State{\Return{false}}
+			\EndIf
+			\EndWhile
+			
+			\Statex 
+			\For {$i = 0;\ i \leq level;\ i:= i + 1$}
+			\For {$\ell \in L \backslash \{l_E \}$}
+			\If {$\ell.trace[i] \neq \ell.trace[i-1]$}
+			\State{break}
+			\EndIf
+			\EndFor
+			\State{\Return{true}}
+			\EndFor
+			\EndLoop
+			\EndProcedure
+		\end{algorithmic}
+	\end{algorithm}
+	\caption{Lifted PDR Algorithm.}
+\end{figure}
+
+Figure 3.2 shows the updated PDR algorithm. Given a CFG $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$ we want to check if $\ell_E$ is reachable: \par
+
+Like the bit-level algorithm it starts on line 2 with checking for a 0-counter-example, the algorithm checks whether $\ell_0 = \ell_E$. If so it terminates and returns that $\ell_E$ is indeed reachable, if not it initializes level 0 frames for all locations $\ell \in L \backslash \{\ell_0, \ell_E\}$ as \texttt{false}, and for $\ell_0$ as \texttt{true}. \par
 Let $k$ be the current level, so that each location $\ell \in L \backslash \{\ell_E\}$ has frames $[F_{0, \ell}, ..., F_{k, \ell}]$. \\
 The algorithm repeats the following phases: \\
 
 \textsl{1. Next Level} \\
-Initialize for each $\ell \in L \backslash \{\ell_E\}$ a new frame $k + 1$ as \texttt{true}. \\
-For each location $\ell \in L$ where $(\ell, t, \ell_E) \in G$ generate an initial proof-obligation $(t, \ell, k)$. \\
+In lines 7 to 11, the algorithm initializes for each $\ell \in L \backslash \{\ell_E\}$ a new frame $k + 1$ as \texttt{true}. \\
+For each location $\ell \in L$ where $(\ell, t, \ell_E) \in G$ it generates an initial proof-obligation $(t, \ell, k)$. \\
 
-\pagebreak
 
 \textsl{2. Blocking-Phase} \\
-If there are proof-obligations: \\
-Take proof-obligation $(t, \ell, i)$ with the lowest $i$ and check for each predecessor location $\ell_{pre}$ if the formula:
+With the lifted algorithm the blocking-phase is no longer nested in the preceding phase, as we see in line 12 to 15 int he code. Here the algorithm takes proof-obligation $(t, \ell, i)$ with the lowest $i$ and checks for each predecessor location $\ell_{pre}$ if the formula:
 \begin{equation*}
 F_{i - 1, \ell_{pre}} \land T_{\ell_{pre} \rightarrow \ell} \land t'
 \end{equation*}
 is satisfiable.
 \begin{itemize}
-\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, generate a new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$ with regard to $T_{\ell_{pre} \rightarrow \ell}$.
-\item If the formula is \textsl{unsatisfiable}, strengthen each frame $F_{j, \ell}$, $j \leq i$ with $\bar t$, meaning $F_{j, \ell} = F_{j, \ell} \land \bar t$, blocking $t$ at $\ell$ on level $i$.
+	\item If it is \textsl{satisfiable}, it means that $t$ could not be blocked at $\ell$ on level $i$, the algorithm generates a new proof-obligation $(p, \ell_{pre}, i-1)$ where $p$ is the weakest precondition of $t$ with regard to $T_{\ell_{pre} \rightarrow \ell}$.
+	\item If the formula is \textsl{unsatisfiable}, the algorithm strengthens each frame $F_{j, \ell}$, $j \leq i$ with $\bar t$, meaning $F_{j, \ell} = F_{j, \ell} \land \bar t$, blocking $t$ at $\ell$ on level $i$.
 \end{itemize}
 
 This continues recursively until either a proof-obligation $(d, \ell, 0)$ is generated, proving that there exists a feasible path to $\ell_E$ terminating the algorithm, or there is no unblocked proof-obligation left. \\
 
 \textsl{3. Propagation-Phase} \\
-Check the frames if there exists a global fixpoint position $i$ where
+In lines 16 to 20 the algorithm checks the frames if there exists a global fixpoint position $i$ where
 \begin{equation*}
 F_{i-1, \ell} = F_{i, \ell}
 \end{equation*}
 for every location $\ell \in L \backslash \{l_E \}$. \\
-If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not reachable. \\
+If there is such an $i$ the algorithm terminates returning that $\ell_E$ is not reachable. \\ \\
+
+
+\hspace*{5cm}
+
+
 
 \pagebreak
-
-To illustrate the lifted algorithm further consider the updated pseudo-code: \\ \\
-
-\begin{figure}[H]
-\begin{algorithm}[H] 
-
-\begin{algorithmic}[1]
-\Procedure{lifted-PDR-prove}{$L, G$}
-\State check for 0-counter-example
-\State $\ell_0.trace.push(new\ frame(true))$
-\ForAll {$\ell \in L \backslash \{ \ell_0, \ell_E\}$}
-        \State $\ell.trace.push(new\ frame(false))$
-\EndFor
-\State $level := 0$
-\Statex
-\Loop
-        \ForAll {$\ell \in L \backslash \{\ell_E\}$}
-                \State $\ell.trace.push(new\ frame(true))$
-        \EndFor
-        \State $level:= level + 1$
-        \State get initial proof-obligations 
-        \Statex
-        \While {$\exists$ proof-obligation $(t, \ell, i),$} 
-        \State Recursively block proof-obligation
-        \If {a proof-obligation$(p, \ell, 0)$ is generated}
-                \State{\Return{false}}
-        \EndIf
-        \EndWhile
-
-        \Statex 
-        \For {$i = 0;\ i \leq level;\ i:= i + 1$}
-                \For {$\ell \in L \backslash \{l_E \}$}
-                        \If {$\ell.trace[i] \neq \ell.trace[i-1]$}
-                                \State{break}
-                        \EndIf
-                \EndFor
-                \State{\Return{true}}
-        \EndFor
-\EndLoop
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-\caption{Lifted PDR Algorithm.}
-\end{figure}
 
 \section{Example}
 In this section we show an application of the lifted algorithm on two cases, one where the error state is reachable, and one where it is not.
 \subsection{Case 1: Error State is Reachable}
-To show an application of the lifted algorithm reconsider the example in \hyperref[ex7]{Figure 4.1}, we have CFG  $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
+To show an application of the lifted algorithm consider again the example in \hyperref[ex7]{Figure 3.1}, we have CFG  $\mathcal{A} = (X, L, G, \ell_0, \ell_E)$, where
 \begin{itemize}
 \item $X = \{x\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_3, \ell_E\}$
-\item $G = \{(\ell_0, x := 0, \ell_1), (\ell_1, x := x + 1, \ell_2), (\ell_2, x = 1, \ell_E), (\ell_2, x \neq 1, \ell_3) \}$
+\item $G = \{(\ell_0, x' = 0, \ell_1), (\ell_1, x' = x + 1, \ell_2), (\ell_2, x = 1, \ell_E), (\ell_2, x \neq 1, \ell_3) \}$
 \end{itemize}
 
 We now want to verify whether $\ell_E$ is reachable using the lifted algorithm: \\ \\
@@ -851,9 +861,9 @@ We need to block the initial proof-obligation $(x = 1, \ell_2, 1)$. Let $\ell_{p
 \begin{equation*}
 F_{0, l_{pre}} \land T_{\ell_{pre} \rightarrow \ell_2} \land x' = 1
 \end{equation*}
-for satisfiability. As there is only one predecessor $\ell_1$ we test:
+for satisfiability. As there is only one predecessor $\ell_1$ we check:
 \begin{equation*}
-\underbrace{false}_{F_{0, \ell_1}} \land \underbrace{x' := x + 1}_{T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
+\underbrace{false}_{F_{0, \ell_1}} \land \underbrace{x' = x + 1}_{T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
 \end{equation*}
 
 Which is unsatisfiable \\
@@ -911,14 +921,14 @@ $\ell_3$ & $false$ & $true$ & $true$ \\
 Again generate the initial proof-obligation which is the same as before but on level 2 now, we have initial proof-obligation $(x = 1, \ell_2, 2)$ \\ \\ \par
 
 \textbf{6. Step: Second-Blocking Phase} \\
-We need to block the proof-obligation $(x = 1, \ell_2, 2)$ by testing
+We need to block the proof-obligation $(x = 1, \ell_2, 2)$ by checking
 \begin{equation*}
-\underbrace{true}_{F_{1, \ell_1}} \land \underbrace{x' := x + 1}_ {T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
+\underbrace{true}_{F_{1, \ell_1}} \land \underbrace{x' = x + 1}_ {T_{\ell_1 \rightarrow \ell_2}} \land x' = 1
 \end{equation*}
 for satisfiability. Which is satisfiable with $ p = (x = 0)$. Because $p$ being also the weakest precondition, we generate a new proof-obligation $(p, \ell_1, 1)$, meaning we need to block $p$ at location $\ell_1$ on level 1. \par
 Take the new proof-obligation $(x=0, \ell_1, 1)$ and check 
 \begin{equation*}
-\underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' := 0}_ {T_{\ell_{0} \rightarrow \ell_1}} \land \underbrace{x' = 0}_{p'}
+\underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' = 0}_ {T_{\ell_{0} \rightarrow \ell_1}} \land \underbrace{x' = 0}_{p'}
 \end{equation*}
 for satisfiability. \\
 Which is valid, with \texttt{true} being the weakest precondition, we generate the new proof-obligation $(true, l_0, 0)$ and because this obligation is on level 0 we terminate, stating that $\ell_E$ is reachable by the counter-example trace:
@@ -930,14 +940,13 @@ Which is valid, with \texttt{true} being the weakest precondition, we generate t
 \pagebreak
 
 \subsection{Case 2: Error State is Unreachable}
-To show a CFG with an unreachable error state consider $\mathcal{B} = (X, L, G, \ell_0, \ell_E),$ where
+Figure 3.3 shows an CFG $\mathcal{B} = (X, L, G, \ell_0, \ell_E)$ with reachable error state, where
 \begin{itemize}
 \item $X = \{x, y\}$
 \item $L = \{\ell_0, \ell_1, \ell_2, \ell_E\}$
-\item $G = \{(\ell_0, x' := 0 \land y' := x', \ell_1), (\ell_1, x' := x+1 \land y' := y+1, \ell_1),\\ (\ell_1, x = y, \ell_2), (\ell_1, x \neq y, \ell_E) \}$
+\item $G = \{(\ell_0, x' = 0 \land y' = x', \ell_1), (\ell_1, x' = x+1 \land y' = y+1, \ell_1),\\ (\ell_1, x = y, \ell_2), (\ell_1, x \neq y, \ell_E) \}$
 \end{itemize}
 
-with graph: \\
 
 
 \begin{figure}[H]
@@ -950,7 +959,7 @@ with graph: \\
     transform shape, align=center,    
 smallnode/.style={inner sep=1.4}
   ]
-    \node[initial above, state](1){$\ell_0$};
+    \node [state](1){$\ell_0$};
     
     \node[state] (2) [below of=1] {$\ell_1$};
     
@@ -960,8 +969,8 @@ smallnode/.style={inner sep=1.4}
     
     
     
-          \path (1) edge node {$x := 0 \land y := x$} (2)
-          (2) edge [loop right] node {$x := x + 1 \land y := y + 1$} (2)
+          \path (1) edge node {$x = 0 \land y = x$} (2)
+          (2) edge [loop right] node {$x = x + 1 \land y = y + 1$} (2)
           (2) edge [edge label={$x = y$}, swap] node {} (3)
           (2) edge [edge label={$x \neq y$}, swap] node {} (4)
           ;
@@ -1025,7 +1034,7 @@ To block the initial proof-obligation $(x \neq y, \ell_1, 1)$ we check each pred
 \begin{itemize}
 \item predecessor: $\ell_0$
 \begin{equation*}
-\underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' := 0 \land y' := x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
+\underbrace{true}_{F_{0, \ell_0}} \land \underbrace{x' = 0 \land y' = x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
 Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$ and $F_{1, \ell_1}$: \\
 
@@ -1047,7 +1056,7 @@ $\ell_2$ & $false$ & $true$ \\
 
 \item predecessor: $\ell_1$
 \begin{equation*}
-\underbrace{false \land x = y}_{F_{0, \ell_1}} \land \underbrace{x' := x + 1 \land y' := y + 1'}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
+\underbrace{false \land x = y}_{F_{0, \ell_1}} \land \underbrace{x' = x + 1 \land y' = y + 1'}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
 Which is unsatisfiable as well, but because $x = y$ has already been added to $F_{0, \ell_1}$ and $F_{1, \ell_1}$ we move on.
 
@@ -1090,7 +1099,7 @@ To block proof-obligation $(x \neq y, \ell_1, 2)$ we check the predecessors of $
 \begin{itemize}
 \item predecessor: $\ell_0$
 \begin{equation*}
-\underbrace{true}_{F_{1, \ell_0}} \land \underbrace{x' := 0 \land y' := x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
+\underbrace{true}_{F_{1, \ell_0}} \land \underbrace{x' = 0 \land y' = x'}_{T_{\ell_0 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
 Which is unsatisfiable, we add $\overline{(x \neq y)} \equiv x = y$ to $F_{0, \ell_1}$, $F_{1, \ell_1}$ and $F_{2, \ell_1}$:
 
@@ -1112,7 +1121,7 @@ $\ell_2$ & $false$ & $true$ & $true$ \\
 
 \item predecessor: $\ell_1$
 \begin{equation*}
-\underbrace{true \land x = y}_{F_{1, \ell_1}} \land \underbrace{x' := x + 1 \land y' := y + 1}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
+\underbrace{true \land x = y}_{F_{1, \ell_1}} \land \underbrace{x' = x + 1 \land y' = y + 1}_{T_{\ell_1 \rightarrow \ell_1}} \land  x' \neq y'
 \end{equation*}
 Which is unsatisfiable as well, but because $x = y$ has already been added to $F_{0, \ell_1}$, $F_{1, \ell_1}$, and $F_{2, \ell_1}$ we move on.
 \end{itemize}
@@ -1147,30 +1156,31 @@ We see that level 1 equals level 2 on all locations, with that we found global f
 
 As shown before, lifting PDR from bit-level to control flow graphs is possible. The problem of large, time consuming queries to the solver remain however. Is it possible to lift the improvements of the bit-level algorithm too? \par
 
-\textsl{Ternary Simulation} cannot be used on first-order formulae making it impossible to use it to reduce lifted proof-obligations. \par
-There are possible generalization techniques: \par
+\textsl{Ternary Simulation} cannot be used on first-order formulae, because as we have seen in section 2.4.2 ternary simulation extends the binary propositional logic by a third value and checks whether that value propagates through formulae. First-order logic is not binary, extending its value space would not work the way it does on propositional logic,
+making it impossible to use to reduce lifted proof-obligations. \par
+In the following we present techniques to improve our base algorithm.
 \subsection{Syntactical Analysis}
-It is possible to remove a cube $c$ from a proof-obligation if no variable in $c$ is assigned in $T$, and either $c$ is already contained in a frame or there is an \texttt{assume $c$} statement in $T$. Making the obligation more general.
+It is possible to remove a cube $c$ from a proof-obligation if no variable in $c$ is assigned in $T$, and either $c$ is already contained in a frame or there is an \texttt{assume $c$} transition in $T$. Making the obligation more general.
 
 
 \subsection{Weakest Precondition}
-The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to find predecessors. Instead of generating a single proof-obligation for every predecessor state and wasting time blocking each of them, calculate the weakest precondition which is a safe overapproximation of all predecessor states. \\
+The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to overapproximate predecessor states. Without weakest preconditions we would have to generate a new explicit proof-obligation for each possible predecessor state. Now we have one proof-obligation containing every possible predecessor.
 
 
 \subsection{Disjunctive Normal Form}
-It is possible to transform cubes into clauses by negating them. When there is a large proof-obligation we can use this to generate the disjunctive normal form and split the large obligation into smaller ones by taking each cube in the disjunctive normal form as a new proof-obligation, saving time because smaller queries are solved faster.
+It is possible to transform cubes into clauses by simply negating them. When there is a large proof-obligation we can use this to generate the disjunctive normal form and split the large obligation into smaller ones by taking each cube in the disjunctive normal form as a new proof-obligation, saving time because smaller queries are solved faster.
 
 \subsection{Interpolation}
-Adding the negated proof-obligation to the frames works well in most cases. Consider Figure 3.4, we see a simple program with a loop. The initial proof-obligation on level $i$ is $(x = 1, \ell_1, i)$, because $\ell_1$ has two predecessorswe have to check:
+Adding the negated proof-obligation to the frames works well in most cases. Consider Figure 3.4, we see a simple program with a loop. The initial proof-obligation on level $i$ is $(x = 1, \ell_1, i)$, because $\ell_1$ has two predecessors we have to check:
 \begin{equation}
-	F_{\ell_1, i - 1} \land x' := x + 1 \land x' = 1
+	F_{\ell_1, i - 1} \land x' = x + 1 \land x' = 1
 \end{equation}
 \begin{equation}
-F_{\ell_0, i - 1} \land x' := 2 \land x' = 1
+F_{\ell_0, i - 1} \land x' = 2 \land x' = 1
 \end{equation}
 for satisfiability. \\
-Formula (3.1) is satisfiable until we get a proof-obligation on level 1, because $F_{\ell_1, 0}$ is always false. \\
-Formula (3.2) is never satisfiable, in each level we add $x \neq 1$ to $\ell_1$'s frames. That term is not strong enough to block the chain of satisfiable obligations of (3.1) in the next level, which is inefficient.
+Formula (3.1) is satisfiable until we get a proof-obligation on level 1, because frame $F_{\ell_1, 0}$ is always false. \\
+Formula (3.2) is always unsatisfiable, in each level we add $x \neq 1$ to $\ell_1$'s frames. That formula however is not strong enough to block the chain of satisfiable obligations of (3.1) in the next level, which is inefficient.
 
 \begin{figure}[H]
 	\centering
@@ -1182,7 +1192,7 @@ Formula (3.2) is never satisfiable, in each level we add $x \neq 1$ to $\ell_1$'
 	transform shape, align=center,    
 	smallnode/.style={inner sep=1.4}
 	]
-	\node[initial above, state](1){$\ell_0$};
+	\node[state](1){$\ell_0$};
 	
 	\node[state] (2) [below of=1] {$\ell_1$};
 	
@@ -1191,8 +1201,8 @@ Formula (3.2) is never satisfiable, in each level we add $x \neq 1$ to $\ell_1$'
 	
 	
 	
-	\path (1) edge node {$x := 2$} (2)
-	(2) edge [loop right] node {$x := x + 1$} (2)
+	\path (1) edge node {$x = 2$} (2)
+	(2) edge [loop right] node {$x = x + 1$} (2)
 	(2) edge [edge label={$x = 1$}, swap] node {} (3)
 	;
 	
@@ -1203,15 +1213,15 @@ Formula (3.2) is never satisfiable, in each level we add $x \neq 1$ to $\ell_1$'
 \end{figure}
 \label{exInterpol} 
 
-Instead consider using interpolants.
+Instead, consider using interpolants.
 Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An interpolant $I$ for $(A, B)$ is a formula fulfilling the following characteristics:
 \begin{itemize}
 	\item $A \Rightarrow I$
 	\item $I \land B$ is unsatisfiable
 	\item $I$ consists only of variables found in $A \cap B$
 \end{itemize}
-
-Now an interpolant for the unsatisfiable formula (3.2) would be $x = 2$, if we add that to $\ell_1$'s frames, we would be able to block formula (3.1) much earlier. \\
+\par
+Now, an interpolant for the unsatisfiable formula (3.2) would be $x = 2$, if we add that to $\ell_1$'s frames, we would be able to block formula (3.1) much earlier. \\
 
 
 
@@ -1219,9 +1229,9 @@ Now an interpolant for the unsatisfiable formula (3.2) would be $x = 2$, if we a
 
 
 \chapter{PDR in \textsc{Ultimate}}
-In this chapter we introduce the program analysis framework \textsc{Ultimate}, and its tool \textsc{Ultimate Automizer}, we will show how we integrated PDR, and detail which improvements were considered.
+In this chapter we introduce the program analysis framework \textsc{Ultimate} \footnote{https://github.com/ultimate-pa}, and its tool \textsc{Ultimate Automizer}, we will show how we integrated PDR, and detail which improvements were considered.
 \section{Introduction \textsc{Ultimate}}
-\textsc{Ultimate} is a program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. A big advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
+\textsc{Ultimate} is a program analysis framework, based on \textsl{plugins} that can be executed one after another to form \textsl{toolchains} which can perform various tasks. An advantage of this modularity is that it is relatively easy to implement new toolchains as a lot of plugins can be reused creating much less overhead. There are five types of plugins: 
 \begin{itemize}
 \item Source plugins define a file-to-model transformation
 
@@ -1237,28 +1247,31 @@ In this chapter we introduce the program analysis framework \textsc{Ultimate}, a
 
 \section{Implementation}
 To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin \textsl{Library-PDR}, that will be executed as part of \textsc{Ultimate Automizer} \cite{Heizmann:2013:SMC:2526861.2526864}. \par 
-\textsc{Ultimate Automizer}, \textsc{Automizer} in the following, is a software verifier that is capable of checking safety and liveness properties. It uses an automata-based \cite{DBLP:conf/cav/HeizmannHP13} instance of the CEGAR scheme, that works like this: \\
- In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible.
+\textsc{Ultimate Automizer} (\textsc{Automizer} in the following) is a software verifier that is capable of checking safety and liveness properties. It uses an automata-based \cite{DBLP:conf/cav/HeizmannHP13} instance of the CEGAR scheme, that works like this: \\
+
+\textsl{1. Get an Error Trace:}
+In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible.
  \begin{itemize}
 	\item If the trace is \textsl{feasible} then the program is proven unsafe, meaning there exists a possible program execution leading to an error location.
 	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, try to eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
  \end{itemize}
- \par
- Now, to check a trace for feasibility we use our newly integrated PDR-Library. \par
+
+\textsl{2. Check Feasability:}
+To check a trace for feasibility we use our newly integrated Library-PDR. \par
  A path-program is
  
  The sequence of interpolants are the entries in the frames on the global fixpoint.
  
 
 \section{Improvements}
-As we have seen in \hyperref[improvements]{section 4.4} there are a plethora of possible ways to make PDR more efficient. In this section we present implemented improvements to our approach.
+As we have seen in \hyperref[improvements]{Section 4.4} there are a plethora of possible ways to make PDR more efficient. In this section we present implemented improvements to our approach.
 \subsection{Caching of Proof-Obligation Queue}
-We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked, we then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
+We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked. We then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
 Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
 %For example, let $i$ be the current level, we have seen and blocked the initial proof-obligation $i$ times, its successor obligation $i-1$ times and so on. \par
 Our idea was to cache the proof-obligation queue and always start a new level with the latest generated one, so we save the process of generating already known obligations. \par For that we introduced a \textsl{global level} variable serving as the level counter, and changed the levels of each proof-obligation to be \textsl{subtracted} from the global level, resulting in a relative level = $global\ level - local\ level$, with that every proof-obligation is at its corresponding level of generation. \par For example, the initial proof-obligation has its local level 0, so that $relative\ level = global\ level - 0 = global\ level$, because the initial obligation always is on the global level, take an obligation that we generate from the initial one, it has local level 1 so that relative level = global level - 1 means that this proof-obligation comes immediately after the initial one. \par
-Something that cannot be saved is blocking of the previous proof-obligation chain, we can only ignore the chain of proof-obligations leading to the newest one, the chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly. We however found a way to shorten this as well, as described in the next point. \\ 
-To illustrate this technique further, consider the following graphic: \\
+Something that cannot be saved is blocking of the previous proof-obligation chain. We can only ignore the chain of proof-obligations leading to the newest one. The chain of blocking the ones before up to the initial obligation is necessary, because otherwise the frames are not updated properly.
+In Figure 4.1 we see a representation of both chains of proof-obligation where the chain leading down the most recent one is highlighted, signaling that this chain can be skipped.
 
 \begin{figure}[H]
 \centering
@@ -1269,18 +1282,18 @@ To illustrate this technique further, consider the following graphic: \\
  
 
 \subsection{Ignoring Already Blocked Proof-Obligations}
-Besides changing proof-obligations's levels, we also expanded them with a list of already seen and blocked SMT-solver queries. \par Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we consider the obligation blocked and add the negated formula to the frames, if we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
+Besides changing the levels of proof-obligations to be relative, we also expanded the proof-obligations with a list of already seen and blocked SMT-solver queries. \par Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we consider the obligation blocked and add the negated formula to the frames, if we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
 With this memoization we save unnecessary calls to the SMT-solver and with that, time on programs with a lot of identical proof-obligations, in loops for example.
 
 \subsection{Using Preconditions}
 As discussed in section 3.4, using weakest preconditions is a really useful addition to the way proof-obligations are generated. \par
-We implemented the usage of weakest preconditions, but were met with problems regarding \texttt{assume}-statements: \\
+We implemented the usage of weakest preconditions in terms of formulas, but were met with problems regarding \texttt{assume}-transitions: \\
 Let $\varphi$ and $\psi$ be first-order formulae and $wp$ be the weakest precondition function, we have: 
-\begin{equation}
+\begin{equation*}
 	wp(\varphi, \texttt{assume}\ \psi) = (\psi \Rightarrow \varphi)
-\end{equation}
+\end{equation*}
 
-To illustrate this issue, consider the following CFG: \\
+Consider the CFG thath contains an \texttt{assume} transition in Figure 4.2. We want to prove if $\ell_E$ is reachable. \\
 
 \begin{figure}[H]
 	\centering
@@ -1291,7 +1304,7 @@ To illustrate this issue, consider the following CFG: \\
 	transform shape, align=center,    
 	smallnode/.style={inner sep=1.4}
 	]
-	\node[initial above, state](1){$\ell_0$};
+	\node[state](1){$\ell_0$};
 	
 	\node[state] (2) [below of=1] {$\ell_1$};
 	
@@ -1303,26 +1316,27 @@ To illustrate this issue, consider the following CFG: \\
 	
 	
 	
-	\path (1) edge node {$x := 0$} (2)
+	\path (1) edge node {$x = 0$} (2)
 	(2) edge [edge label={\texttt{assume} $x=1$}, swap] node {} (new)
 	(new) edge [edge label={$x \neq 1$}, swap] node {} (3)
 	(new) edge [edge label={$x = 1$}, swap] node {} (4)
 	;
 	);
 	\end{tikzpicture}
-	\caption{Graph of $\mathcal{B}$.}
+	\caption{CFG with \texttt{assume}.}
 \end{figure}
 \label{assumeEx}
 
-We now use PDR to prove if $\ell_E$ is reachable. \\
 We omit the first iteration of the algorithm and start on level 2 with the initial proof-obligation $(x = 0, \ell_2, 2)$, we check the following formula for satisfiability: 
 \begin{equation*}
 	true\land \texttt{assume}\ x = 1 \land x' = 1
 \end{equation*}
+
 Which is satisfiable, we calculate 
 \begin{equation}
-	wp(x' = 1, \texttt{assume}\ x = 1) = ((x = 1) \Rightarrow (x' = 1)) \label{wpEx}
+	wp(x' = 1, \texttt{assume}\ x = 1) = ((x = 1) \Rightarrow (x' = 1)) 
 \end{equation}
+\label{wpEx}
 
 Because \texttt{assume} does not change $x$, it becomes apparent that $x' = x$, resulting in 
 \begin{equation*}
@@ -1332,23 +1346,23 @@ We get the new proof-obligation $(true, \ell_1, 1)$. \\
 
 To block $(true, \ell_1, 1)$, we check the following formula for satisfiability: 
 \begin{equation*}
-	true\land x' := 0 \land true
+	true\land x' = 0 \land true
 \end{equation*}
-which is satisfiable, we would create a proof-obligation on level 0 and with that would terminate, resulting in the wrong outcome that $\ell_E$ is reachable. \par
+which is satisfiable as well, we would create a proof-obligation on level 0 and with that would terminate, resulting in the wrong assumption that $\ell_E$ is reachable. \par
 
 To fix this problem we do not use the weakest precondition but just the precondition, which is characterized like this: \\
 Let $\varphi$ and $\psi$ be first-order formulae and $pre$ be the precondition function, we have: 
 \begin{equation*}
 pre(\varphi, \texttt{assume}\ \psi) = (\varphi \land \psi)
 \end{equation*}
-Now reconsider formula \eqref{wpEx}, to get the new proof-obligation we use the pre function: 
+Now reconsider formula \eqref{wpEx}, to get the new proof-obligation we use the \textsl{pre} function: 
 \begin{equation*}
 		pre(x' = 1, \texttt{assume}\ x = 1) = ((x = 1) \land (x' = 1))
 \end{equation*}
 Because $x = x'$ this can be simplified to $x = 1$. We get the new proof-obligation $(x = 1, \ell_1, 1)$.
 To block $(x = 1, \ell_1, 1)$, we check the following formula for satisfiability: 
 \begin{equation*}
-true\land x' := 0 \land x' = 1
+true\land x' = 0 \land x' = 1
 \end{equation*}
 which is unsatisfiable, and with that we have solved the issue and can continue working on the program. \par
 
@@ -1441,7 +1455,7 @@ scaled y ticks = false
 \begin{center}
 	\begin{tabu}{ccc}
 		\cmidrule(lr){2-3}
-		Technique & tests solved & solve time\\
+		Technique & Tests Solved & Solve Time\\
 		\cmidrule{1-3}
 		Nested Interpolants & 165/250 & 3508s \\
 		PDR SMTInterpol& 35/250  & 496s \\
@@ -1453,27 +1467,29 @@ scaled y ticks = false
 \end{figure}
 
 \section{Discussion}
-In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques, there are however some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because PDR does not yet use interpolants, we have trouble solving programs that contain loops, as we have to disprove every single loop iteration, making verification very time consuming. Both techniques were more or less on par regarding memory consumption. \par
-In Figure 5.2 we see that PDR generally only solved $\frac{1}{7}$ of the benchmarks using SMTInterpol and $\frac{1}{4}$ using Z3. This is because our benchmarkset contained programs with procedures, a procedure is a call to another function that is not the main program. Our PDR implementation can not yet deal with such programs, and because of that cannot deal with a lot of the benchmarks. \par
+In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques, there are however some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because Library-PDR does not yet use interpolants, we have trouble solving programs that contain loops, as we have to disprove every single loop iteration, making verification very time consuming. \\
+We can see that PDR was in some occasions faster than Nested Interpolants.
+Both techniques were more or less on par regarding memory consumption. \par
+In Figure 5.2 we see that PDR generally only solved $\frac{1}{7}$ of the benchmarks using SMTInterpol and $\frac{1}{4}$ using Z3. This is because our benchmarkset contained programs with procedures. A procedure is a call to another function outside of the main program. Our PDR implementation can not yet deal with such programs, and because of that cannot deal with a lot of the benchmarks. \par
 There are 7 benchmarks that only PDR could solve as they timed out with Nested Interpolants, which is promising.
 \pagebreak
 
 
 \chapter{Related Work}
 
-Closely related to our work is the approach by Lange et al. \cite{DBLP:conf/fmcad/0001NN15} who propose a true lifting of \texttt{IC3} from hardware to software by fully exploiting the control flow of a given program, meaning the control flow graph is not altered in any way. They extend \texttt{IC3} in the following ways. Instead of using a SAT-solver they use a SMT-solver. Additional information is no longer being used globally over all states, but every program location has its own local information, and if there exists an error location each iteration of the algorithm will have to prove that it is unreachable. \par
+Closely related to our work is the approach by Lange et al. \cite{DBLP:conf/fmcad/0001NN15} who propose a true lifting of \texttt{IC3} from hardware to software by fully exploiting the control flow of a given program, meaning the control flow graph is not altered in any way. They extend \texttt{PDR} in the following ways. Instead of using a SAT-solver they use a SMT-solver. Additional information is no longer being used globally over all states, but every program location has its own local information, and, if there exists an error location, each iteration of the algorithm will have to prove that it is unreachable. \par
 
-The first approach of using PDR on software is rather straight-forward, Welp et al. propose a way to encode variables as bitvectors, introduce a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding~\cite{DBLP:conf/date/WelpK13}. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
+The first approach of using PDR on software is rather straight-forward, Welp et al. \cite{DBLP:conf/date/WelpK13} propose a way to encode variables as bitvectors, introduce a new variable $pc$ representing the program location, and then using the unmodified \texttt{IC3}-algorithm on that encoding. A big drawback of that approach is the tedious handling of the $pc$ variable rendering it not very competitive.
 
-In 2012 the first ever approach of using PDR on first-order formulae was devised, Cimatti et al. \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree (ART). An ART $\mathcal{A}$ for a given program is a tree over $(V, E)$, such that $V$ is a set of triples $(pc, \varphi)$, where $pc$ is a program location,  $\varphi$ is a first-order formula, and a set of transitions $E \subseteq pc_i \times \psi \times pc_j$. \\
-The root node is defined as $(pc_{init}, true)$. \\ For every non-leaf node $(pc_i, \varphi)$ holds $\varphi \land T_{pc_i \rightarrow pc_j} \models \psi'$, for child node $(pc_j, \psi)$. $T_{pc_i \rightarrow pc_j}$ being the transition formula. \\
+In 2012 the first ever approach of using PDR on first-order formulae was devised. Cimatti et al. \cite{DBLP:conf/cav/CimattiG12} propose exploiting the partitioning of a program's state space by unwinding the program's control flow graph into an Abstract Reachability Tree (ART). An ART $\mathcal{A}$ for a given program is a tree over $(V, E)$, such that $V$ is a set of tuples $(pc, \varphi)$, where $pc$ is a program location,  $\varphi$ is a first-order formula. $E \subseteq pc \times \psi \times pc$ being a set of transitions. \par
+The root node is defined as $(pc_{init}, true)$. \\ For every non-leaf node $(pc_i, \varphi)$ holds $\varphi \land T_{pc_i \rightarrow pc_j} \models \psi'$, for child node $(pc_j, \psi)$. $T_{pc_i \rightarrow pc_j} \in E$. \\
 The proposed algorithm first computes a possible path to an error location $pc_E$ $(pc_{init}, ..., pc_E)$ then constructs a trace $F = [ true, ..., \varphi_i, ..., \varphi_{n-1} ] $, by taking the coupled formula of each location. \\
-A proof-obligation in this approach is a tuple $(\varphi, T_{pc_j \rightarrow pc_i})$ \\
+A proof-obligation in this approach is a tuple $(\varphi, T_{pc_i \rightarrow pc_j})$ \\
 To block a proof-obligation $(\varphi, T_{pc_i \rightarrow pc_j})$ the algorithm checks 
 \begin{equation*}
 F[i] \land T_{pc_i \rightarrow pc_j} \models \neg \varphi'
 \end{equation*}
-If that formula is satisfiable, the proof-obligation is blocked and the algorithm strengthens its trace $F[i]$ with $\neg c$, and if it is unsatisfiable a new proof-obligation is generated. \\
+If that formula is satisfiable, the proof-obligation is blocked and the algorithm strengthens its trace $F[i]$ with $\neg c$. If it is unsatisfiable a new proof-obligation is generated. \\
 We see this approach is similar to ours, except that it maintains a global trace like the original PDR and that it works on an ART, omitting levels. \par
 
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
@@ -1493,7 +1509,7 @@ To get an interpolant $I$ for that query we first need to define formulae $A$ an
 \end{equation*}
 This helps to save time on loops as we have seen in section 3.4.4.
 \subsection{Procedures}
-\textsc{Ultimate} aims to verify C programs, most of which contain procedure calls that cannot be handled yet. \\ Procedures are presented like this: 
+\textsc{Ultimate} aims to verify C programs, most of which contain procedure calls that our basic PDR algorithm  cannot handle. \\ An example procedure is shown in Figure 7.1
 
 \begin{figure}[H]
 \centering
@@ -1515,7 +1531,7 @@ node distance=2.5cm,%
  \end{figure}
  \label{procedure Ex}  
 
-There is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
+Basically, there is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
 Because of PDR's backwards-search nature, we first find the \texttt{return} of a procedure, without knowing the effects of the corresponding procedure on variables, and the prior state of the program before the execution, this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
 
 A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFG, removing the procedure altogether.
