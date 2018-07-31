@@ -184,11 +184,11 @@ or assignment, either wholly or excerpts thereof.
 \chapter*{Abstract}
 Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}, which was surprisingly efficient, winning third place in the hardware
 model-checking competition (HWMCC) at CAV 2010 \cite{cav}. This sparked interest in using the underlying technique, Property Directed Reachability, on software.
-This thesis aims at lifting Property Directed Reachability from hardware to software and to implement a Property Directed Reachability-based model-checker in the software analysis framework \textsc{Ultimate} \cite{Zitat02}.
+The goal of this thesis is to extend Property Directed Reachability so that it can be used on software and to implement a Property Directed Reachability-based model-checker in the software analysis framework \textsc{Ultimate} \cite{Zitat02}.
 
 
 \chapter*{Zusammenfassung}
-Vor Kurzem wurde ein neuer Hardware Verifizierungsalgorithmus names \texttt{IC3} von Aaron Bradley entwickelt. Dieser Algorithmus überraschte durch seine Effizienz und gewann den dritten Preis in der Model-checking competition (HWMCC) bei der CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability von Hardware auf Software anzuheben, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyse Framework \textsc{Ultimate} zu implementieren.
+Vor Kurzem wurde ein neuer Hardware Verifizierungsalgorithmus names \texttt{IC3} von Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} entwickelt. Dieser Algorithmus überraschte durch seine Effizienz und gewann den dritten Preis in der Model-checking competition (HWMCC) bei CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability so zu erweitern, dass es auf Software anwendbar ist, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyseframework \textsc{Ultimate} zu implementieren.
 
 
 
@@ -209,7 +209,7 @@ The goal of this Bachelor's Thesis is to implement a new analysis-plugin that is
 This thesis is structured as follows: in Chapter 2 we introduce how PDR is used on hardware, we present an algorithm and discuss possible methods to make it more efficient. In Chapter 3 we explain our approach of lifting PDR from hardware to software, presenting a lifted algorithm, and again discussing possible improvements. Chapter 4 focuses on our implementation of PDR in \textsc{Ultimate}, followed by an evaluation in Chapter 5 where we compare PDR to an already existing analysis-plugin. And last but not least we give an outlook on possible future work in Chapter 6.
 
 
-\hbadness 100pt
+
 \chapter{\text{Background: PDR for Hardware}}
 \label{PDR}
 In this section we describe how PDR works on hardware, which requires propositional logic, so that every variable is a boolean.
@@ -473,13 +473,13 @@ If we now assume proof-obligation $(s, 2)$ would have been blocked, meaning $F_1
 \pagebreak
 
 \subsection{Case 2: Property Satisfied}
-To show a transition system with an inductive invariant, consider $B = (X, I, T)$, where
+To show a transition system with an inductive invariant, consider $B = (X, I, T)$ shown in Figure 2.3, where
 \begin{itemize}
 \item $X = \{x_1, x_2\}$
 \item $I = \bar x_1 \land \bar x_2 $
 \item  $T = ( x_1 \lor \bar x_2 \lor x_2') \land (x_1 \lor x_2 \lor \bar x_1') \land (\bar x_1 \lor x_1') \land (\bar x_1 \lor \bar x_2') \land (x_2 \lor \bar x_2')$
 \end{itemize}
-and corresponding transition graph: \par
+\par
 
 \begin{figure}[H]
 \centering
@@ -636,7 +636,7 @@ Because there is no clause being unknown, $x_3$ can be removed from the proof-ob
 
 
 \chapter{PDR for Software} \label{sec3}
-After we have seen how PDR works on systems based on propositional logic, we show in this chapter how to extend the approach to work on systems based on first-order logic. We need to \textsl{lift} the approach from bit-level to first-order logic. We base our approach on the technique described by Lange et al ~\cite{DBLP:conf/fmcad/0001NN15}. There are however other ways to accomplish this, see chapter 5 for an overview of other techniques. \par To use PDR on software we first need some new definitions and other preliminaries.
+After we have seen how PDR works on systems based on propositional logic, we show in this chapter how to extend the approach to work on systems based on first-order logic. We need to \textsl{lift} the approach from bit-level to first-order logic. We base our approach on the technique described by Lange et al. ~\cite{DBLP:conf/fmcad/0001NN15}. There are however other ways to accomplish this, see chapter 5 for an overview of other techniques. \par To use PDR on software we first need some new definitions and other preliminaries.
 
 \section{Preliminaries}
 
@@ -1249,18 +1249,35 @@ In this chapter we introduce the program analysis framework \textsc{Ultimate} \f
 To implement PDR in \textsc{Ultimate} we chose to implement a new library plugin \textsl{Library-PDR}, that will be executed as part of \textsc{Ultimate Automizer} \cite{Heizmann:2013:SMC:2526861.2526864}. \par 
 \textsc{Ultimate Automizer} (\textsc{Automizer} in the following) is a software verifier that is capable of checking safety and liveness properties. It uses an automata-based \cite{DBLP:conf/cav/HeizmannHP13} instance of the CEGAR scheme, that works like this: \\
 
-\textsl{1. Get an Error Trace:}
+\textsl{1. Get an Error Trace:} \\
 In each new iteration choose a sequence of statements, called trace, that start at the initial location and lead to an error location. Check whether the trace is feasible or infeasible.
  \begin{itemize}
 	\item If the trace is \textsl{feasible} then the program is proven unsafe, meaning there exists a possible program execution leading to an error location.
-	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, try to eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
+	\item If the trace is \textsl{infeasible}, calculate a proof for the infeasibility by computing a sequence of predicates along the trace, called sequence of interpolants. Then, in a following refinement step, eliminate every other trace that can be proven infeasible using that sequence of interpolants, these traces are then being subtracted from the set of potentially error traces.
  \end{itemize}
 
-\textsl{2. Check Feasability:}
-To check a trace for feasibility we use our newly integrated Library-PDR. \par
- A path-program is
+\textsl{2. Check Feasability:} \\
+To check a trace for feasibility we use our newly integrated Library-PDR. 
+Our implementation does not consider the trace in isolation but in the context of the analyzed program. We project the given program to the transitions found in the trace, this projection is then considered as a new standalone program, called \textsl{path program}. We then use PDR on that. \\ Our Library-PDR works like this:
+
+\begin{itemize}
+	\item 1. We get the analyzed program's CFA, and a possible trace as a list of transitions. From the trace and CFA we generate the corresponding path program.
+	\item 2. Check for 0-Counter-Example: we check if the source of the first transition in the trace is equal to the target of the last transition.
+	 \begin{itemize}
+		\item If it is we return that the trace is feasible.
+		\item If not we initialize the frames as a mapping of location to a list of formulas
+	 \end{itemize}
+	\item 3. Blocking-Phase: We get the initial proof obligation $(f, \ell, 1)$, where $f$ is the formula of the last transition in the trace, and $\ell$ being its source. We initialize a priority queue of proof-obligations and add the initial proof-obligation. \par
+	We take the first obligation in the queue and check it for satisfiability. This continues until either a proof-obligation on level 0 is created or the queue is empty.
+	
+	\item 4. Propagation-Phase: In it we search for a global fixpoint by iterating through the frames of every location. If we detect a position where the formula equals the following formula, we have possible global fixpoint candidate. We check every other location if its frames are equal on that position too. \\
+	If so we indeed have a global fixpoint and return that the trace is infeasible. If not we continue on.
+	
+\end{itemize}
  
- The sequence of interpolants are the entries in the frames on the global fixpoint.
+\textsl{3. Get Interpolants Sequence:} \\
+If Library-PDR returns that the trace is infeasible we need a sequence of interpolants.
+These are the formulas in the trace on the global fixpoint location, we return the conjunction of those formulas.
  
 
 \section{Improvements}
@@ -1492,6 +1509,7 @@ F[i] \land T_{pc_i \rightarrow pc_j} \models \neg \varphi'
 If that formula is satisfiable, the proof-obligation is blocked and the algorithm strengthens its trace $F[i]$ with $\neg c$. If it is unsatisfiable a new proof-obligation is generated. \\
 We see this approach is similar to ours, except that it maintains a global trace like the original PDR and that it works on an ART, omitting levels. \par
 
+\textbf{Last Todo:} \\
 Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
 
@@ -1531,8 +1549,8 @@ node distance=2.5cm,%
  \end{figure}
  \label{procedure Ex}  
 
-Basically, there is a \texttt{call}-Transition leading to the procedure, then the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
-Because of PDR's backwards-search nature, we first find the \texttt{return} of a procedure, without knowing the effects of the corresponding procedure on variables, and the prior state of the program before the execution, this can lead to the creation of wrong proof-obligations, leading to unsound results. \par
+Basically, there is a \texttt{call}-Transition leading to the procedure, then follows the procedure \texttt{proc()} itself, and finally a \texttt{return}-transition leading back to the main program. \par
+Because of PDR's backwards-search nature, we first find the \texttt{return} of a procedure, without knowing the effects of the corresponding procedure on variables, and the prior state of the program before the execution, this can lead to the creation of wrong proof-obligations, leading to unsound results. Another problem is that returns correspond only to certain calls, if we do not know which return belongs to which call, we cannot handle them. \par
 
 A solution to that problem is, instead of using a linear approach, we modify our algorithm to be nonlinear and deal with procedures accordingly \cite{DBLP:conf/sat/HoderB12} or to calculate a procedure summary and attach that to the CFG, removing the procedure altogether.
 %
@@ -1626,6 +1644,8 @@ A solution to that problem is, instead of using a linear approach, we modify our
 
 
 \chapter{Conclusion}
+The goal of this thesis was to use the successful hardware checking technique Property Directed Reachability on software and to implement a new PDR-based analysis plugin in the software checking framework \textsc{Ultimate}. \par Additionally we have shown how to further improve PDR to make it more efficient. In comparison with another checking technique, Nested Interpolants, we have seen that PDR can be faster and can solve programs that the other technique struggled with. However there is still some work to be done like implementing proper use of interpolants and a way to deal with procedures.
+
 
 \chapter*{Acknowledgements}
 
