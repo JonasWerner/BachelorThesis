@@ -115,7 +115,7 @@
 \makeatother
 
 \newcolumntype{?}{!{\vrule width 2pt}}
-\overfullrule=1mm
+\overfullrule=0mm
 
 \begin{document}
 \begin{titlepage}
@@ -182,14 +182,18 @@ or assignment, either wholly or excerpts thereof.
 \end{tabular}
 
 \chapter*{Abstract}
-Recently a novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}, which was surprisingly efficient, winning third place in the hardware
-model-checking competition (HWMCC) at CAV 2010 \cite{cav}. This sparked interest in using the underlying technique, Property Directed Reachability, on software.
+A novel hardware verification algorithm was devised by Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} called \texttt{IC3}, which was surprisingly efficient, winning third place in the hardware
+model-checking competition (HWMCC) at CAV 2010 \cite{cav}. Recently this sparked interest in using the underlying technique, Property Directed Reachability, on software.
 The goal of this thesis is to extend Property Directed Reachability so that it can be used on software and to implement a Property Directed Reachability-based model-checker in the software analysis framework \textsc{Ultimate} \cite{Zitat02}.
 
 
 \chapter*{Zusammenfassung}
-Vor Kurzem wurde ein neuer Hardware Verifizierungsalgorithmus names \texttt{IC3} von Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11} entwickelt. Dieser Algorithmus überraschte durch seine Effizienz und gewann den dritten Preis in der Model-checking competition (HWMCC) bei CAV 2010 \cite{cav}. Das weckte das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability so zu erweitern, dass es auf Software anwendbar ist, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyseframework \textsc{Ultimate} zu implementieren.
+Der neue Hardware Verifizierungsalgorithmus \texttt{IC3}, entwickelt von Aaron Bradley \cite{DBLP:conf/vmcai/Bradley11}, überraschte durch seine Effizienz und gewann den dritten Preis in der Model-checking competition (HWMCC) bei CAV 2010 \cite{cav}. Das weckte vor Kurzem das Interesse die unterliegende Technik, Property Directed Reachability, auch auf Software zu nutzen. Das Ziel dieser Arbeit ist Property Directed Reachability so zu erweitern, dass es auf Software anwendbar ist, und einen auf Property Directed Reachability basierten  Modell-Checker in das Softwareanalyseframework \textsc{Ultimate} zu implementieren.
 
+\chapter*{Acknowledgements}
+First and foremost I would like to thank my advisor Daniel, who always guided me in difficult situations. Be it implementing solutions in Ultimate, or helping me with english grammar, and LaTeX aesthetics. I am immensely grateful for your advice and guidance. \par
+Then of course my beloved family who supported me all this time. \\
+My friends in Freiburg, my friends at the Hochrhein, Phil and Vinz who owe me a dinghy, Nik, Dennis, the Helden Gang, my favorite jazz singer Gabri, and whoever I might have forgotten to mention.
 
 
 \tableofcontents
@@ -681,8 +685,8 @@ smallnode/.style={inner sep=1.4}
     \node[state] (5) [below left of=3] {$\ell_E$};
     
     
-          \path (1) edge node {$x = 0$} (2)
-          (2) edge node {$x = x + 1$} (3)
+          \path (1) edge node {$x' = 0$} (2)
+          (2) edge node {$x' = x + 1$} (3)
           (3) edge node {$x \neq 1$} (4)
           (3) edge [edge label={$x = 1$}, swap] node {} (5)
           ;
@@ -969,8 +973,8 @@ smallnode/.style={inner sep=1.4}
     
     
     
-          \path (1) edge node {$x = 0 \land y = x$} (2)
-          (2) edge [loop right] node {$x = x + 1 \land y = y + 1$} (2)
+          \path (1) edge node {$x' = 0 \land y' = x'$} (2)
+          (2) edge [loop right] node {$x' = x + 1 \land y' = y + 1$} (2)
           (2) edge [edge label={$x = y$}, swap] node {} (3)
           (2) edge [edge label={$x \neq y$}, swap] node {} (4)
           ;
@@ -1159,9 +1163,6 @@ As shown before, lifting PDR from bit-level to control flow graphs is possible. 
 \textsl{Ternary Simulation} cannot be used on first-order formulae, because as we have seen in section 2.4.2 ternary simulation extends the binary propositional logic by a third value and checks whether that value propagates through formulae. First-order logic is not binary, extending its value space would not work the way it does on propositional logic,
 making it impossible to use to reduce lifted proof-obligations. \par
 In the following we present techniques to improve our base algorithm.
-\subsection{Syntactical Analysis}
-It is possible to remove a cube $c$ from a proof-obligation if no variable in $c$ is assigned in $T$, and either $c$ is already contained in a frame or there is an \texttt{assume $c$} transition in $T$. Making the obligation more general.
-
 
 \subsection{Weakest Precondition}
 The definition of the lifted algorithm above already contains an improvement, using weakest preconditions to overapproximate predecessor states. Without weakest preconditions we would have to generate a new explicit proof-obligation for each possible predecessor state. Now we have one proof-obligation containing every possible predecessor.
@@ -1171,7 +1172,7 @@ The definition of the lifted algorithm above already contains an improvement, us
 It is possible to transform cubes into clauses by simply negating them. When there is a large proof-obligation we can use this to generate the disjunctive normal form and split the large obligation into smaller ones by taking each cube in the disjunctive normal form as a new proof-obligation, saving time because smaller queries are solved faster.
 
 \subsection{Interpolation}
-Adding the negated proof-obligation to the frames works well in most cases. Consider Figure 3.4, we see a simple program with a loop. The initial proof-obligation on level $i$ is $(x = 1, \ell_1, i)$, because $\ell_1$ has two predecessors we have to check:
+Adding the negated proof-obligation to the frames works well in most cases. Consider program $\mathcal{A}$ in Figure 3.4. The initial proof-obligation on level $i$ is $(x = 1, \ell_1, i)$, because $\ell_1$ has two predecessors we have to check:
 \begin{equation}
 	F_{\ell_1, i - 1} \land x' = x + 1 \land x' = 1
 \end{equation}
@@ -1201,15 +1202,15 @@ Formula (3.2) is always unsatisfiable, in each level we add $x \neq 1$ to $\ell_
 	
 	
 	
-	\path (1) edge node {$x = 2$} (2)
-	(2) edge [loop right] node {$x = x + 1$} (2)
+	\path (1) edge node {$x' = 2$} (2)
+	(2) edge [loop right] node {$x' = x + 1$} (2)
 	(2) edge [edge label={$x = 1$}, swap] node {} (3)
 	;
 	
 	
 	);
 	\end{tikzpicture}
-	\caption{Simple Program.}
+	\caption{Program $\mathcal{A}$.}
 \end{figure}
 \label{exInterpol} 
 
@@ -1221,7 +1222,7 @@ Let $(A, B)$ be a pair of formulae such that $A \land B$ is unsatisfiable. An in
 	\item $I$ consists only of variables found in $A \cap B$
 \end{itemize}
 \par
-Now, an interpolant for the unsatisfiable formula (3.2) would be $x = 2$, if we add that to $\ell_1$'s frames, we would be able to block formula (3.1) much earlier. \\
+Now, an interpolant for the unsatisfiable formula (3.2) would be $x' = 2$, if we add that to $\ell_1$'s frames, we would be able to block formula (3.1) much earlier. \\
 
 
 
@@ -1258,7 +1259,7 @@ In each new iteration choose a sequence of statements, called trace, that start 
 
 \textsl{2. Check Feasability:} \\
 To check a trace for feasibility we use our newly integrated Library-PDR. 
-Our implementation does not consider the trace in isolation but in the context of the analyzed program. We project the given program to the transitions found in the trace, this projection is then considered as a new standalone program, called \textsl{path program}. We then use PDR on that. \\ Our Library-PDR works like this:
+Our implementation does not consider the trace in isolation but in the context of the analyzed program. We project the given program to the transitions found in the trace. This projection is then considered as a new standalone program, called \textsl{path program}. We then use PDR on that. \\ Our Library-PDR works like this:
 
 \begin{itemize}
 	\item 1. We get the analyzed program's CFA, and a possible trace as a list of transitions. From the trace and CFA we generate the corresponding path program.
@@ -1281,7 +1282,7 @@ These are the formulas in the trace on the global fixpoint location, we return t
  
 
 \section{Improvements}
-As we have seen in \hyperref[improvements]{Section 4.4} there are a plethora of possible ways to make PDR more efficient. In this section we present implemented improvements to our approach.
+As we have seen in \hyperref[improvements]{Section 4.4} there is a plethora of possible ways to make PDR more efficient. In this section we present implemented improvements to our approach.
 \subsection{Caching of Proof-Obligation Queue}
 We always start each new level with the initial proof-obligation, and generate a chain of proof-obligations, until the most recent one is blocked. We then recursively block all predecessor obligations, adding new information to the frames. This chain of obligations does not change, once a new obligation is generated it needs to be blocked in each successive level.\\
 Now as a result of the backwards search nature of PDR, each new level has to create that chain of proof-obligations from the beginning again. That results in a lot of overhead because we have to calculate the same chain of obligations times and times again. \par
@@ -1302,100 +1303,39 @@ In Figure 4.1 we see a representation of both chains of proof-obligation where t
 Besides changing the levels of proof-obligations to be relative, we also expanded the proof-obligations with a list of already seen and blocked SMT-solver queries. \par Before we consider a new call to the SMT-solver we first check the given query whether it has already been proven unsatisfiable, if so, we consider the obligation blocked and add the negated formula to the frames, if we prove an unknown query as unsatisfiable we add them to the list of blocked queries. \par
 With this memoization we save unnecessary calls to the SMT-solver and with that, time on programs with a lot of identical proof-obligations, in loops for example.
 
-\subsection{Using Preconditions}
-As discussed in section 3.4, using weakest preconditions is a really useful addition to the way proof-obligations are generated. \par
-We implemented the usage of weakest preconditions in terms of formulas, but were met with problems regarding \texttt{assume}-transitions: \\
-Let $\varphi$ and $\psi$ be first-order formulae and $wp$ be the weakest precondition function, we have: 
-\begin{equation*}
-	wp(\varphi, \texttt{assume}\ \psi) = (\psi \Rightarrow \varphi)
-\end{equation*}
-
-Consider the CFG thath contains an \texttt{assume} transition in Figure 4.2. We want to prove if $\ell_E$ is reachable. \\
-
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}[%
-	->,
-	>=stealth', shorten >=1pt, auto,
-	node distance=2cm, scale=1, 
-	transform shape, align=center,    
-	smallnode/.style={inner sep=1.4}
-	]
-	\node[state](1){$\ell_0$};
-	
-	\node[state] (2) [below of=1] {$\ell_1$};
-	
-	\node[state] (new) [below of=2] {$\ell_2$};
-	
-	\node[state] (3) [below left of=new] {$\ell_3$};
-	
-	\node[state] (4) [below right of=new] {$\ell_E$};
-	
-	
-	
-	\path (1) edge node {$x = 0$} (2)
-	(2) edge [edge label={\texttt{assume} $x=1$}, swap] node {} (new)
-	(new) edge [edge label={$x \neq 1$}, swap] node {} (3)
-	(new) edge [edge label={$x = 1$}, swap] node {} (4)
-	;
-	);
-	\end{tikzpicture}
-	\caption{CFG with \texttt{assume}.}
-\end{figure}
-\label{assumeEx}
-
-We omit the first iteration of the algorithm and start on level 2 with the initial proof-obligation $(x = 0, \ell_2, 2)$, we check the following formula for satisfiability: 
-\begin{equation*}
-	true\land \texttt{assume}\ x = 1 \land x' = 1
-\end{equation*}
-
-Which is satisfiable, we calculate 
-\begin{equation}
-	wp(x' = 1, \texttt{assume}\ x = 1) = ((x = 1) \Rightarrow (x' = 1)) 
-\end{equation}
-\label{wpEx}
-
-Because \texttt{assume} does not change $x$, it becomes apparent that $x' = x$, resulting in 
-\begin{equation*}
-	((x = 1) \Rightarrow (x = 1)) = true
-\end{equation*}
-We get the new proof-obligation $(true, \ell_1, 1)$. \\
-
-To block $(true, \ell_1, 1)$, we check the following formula for satisfiability: 
-\begin{equation*}
-	true\land x' = 0 \land true
-\end{equation*}
-which is satisfiable as well, we would create a proof-obligation on level 0 and with that would terminate, resulting in the wrong assumption that $\ell_E$ is reachable. \par
-
-To fix this problem we do not use the weakest precondition but just the precondition, which is characterized like this: \\
-Let $\varphi$ and $\psi$ be first-order formulae and $pre$ be the precondition function, we have: 
-\begin{equation*}
-pre(\varphi, \texttt{assume}\ \psi) = (\varphi \land \psi)
-\end{equation*}
-Now reconsider formula \eqref{wpEx}, to get the new proof-obligation we use the \textsl{pre} function: 
-\begin{equation*}
-		pre(x' = 1, \texttt{assume}\ x = 1) = ((x = 1) \land (x' = 1))
-\end{equation*}
-Because $x = x'$ this can be simplified to $x = 1$. We get the new proof-obligation $(x = 1, \ell_1, 1)$.
-To block $(x = 1, \ell_1, 1)$, we check the following formula for satisfiability: 
-\begin{equation*}
-true\land x' = 0 \land x' = 1
-\end{equation*}
-which is unsatisfiable, and with that we have solved the issue and can continue working on the program. \par
-
 
 \chapter{Evaluation}
-In this chapter we evaluate our implementation and compare it to \textsc{Ultimate}'s Nested Interpolants. \\
-We benchmarked PDR with two different SMT-solvers: 
+In this chapter we evaluate our implementation. \par
+We compare \textsc{Automizer} using Library-PDR as trace checker with  \textsc{Automizer} using trace abstraction using SMTInterpol and nested interpolants. \\
+We benchmarked Library-PDR with two different SMT-solvers:
 \begin{itemize}
 \item SMTInterpol \cite{Zitat03}
 \item Z3 \cite{Zitat04}
 \end{itemize}
-The difference between those is that SMTIterpol interpolates better and is integrated into \textsc{Ultimate}, but on the other hand cannot deal with quantors and non-linear queries. We focus mainly on SMTInterpol.
+The difference between those is that SMTItnerpol interpolates better and is integrated into \textsc{Ultimate}, but on the other hand cannot deal with quantors and non-linear queries. We focus mainly on SMTInterpol. \par
+
+We tested it on \textsc{Ultimate} version 0.1.23-e6fd87c with time limit: 300s and memory limit: 8000MB
+
 
 \section{Comparison}
-We used a testing set containing 250 programs.
+We used a testing set containing 250 Boogie\footnote{https://www.microsoft.com/en-us/research/project/boogie-an-intermediate-verification-language/} programs, divided into the following categories: \\
+
+\begin{itemize}
+\item 31 examples of real-life code: \texttt{real-life}
+
+\item 40 examples of path programs without disjunctions: \\ \texttt{20170319-ConjunctivePathPrograms}
+
+\item 134 examples of path programs that \textsc{Automizer} could not solve in three iterations: \texttt{20170304-DifficultPathPrograms}
+
+\item 37 examples of programs with difficult loop invariants: \\ \texttt{tooDifficultLoopInvariants}
+
+\item 8 examples of programs containing non-linear arithmetic: \texttt{nonlinear}
+\end{itemize}
+
+\vspace*{3cm}
+
 \begin{figure}[H]
+\resizebox{\textwidth}{!}{
 \begin{minipage}[t]{0.5\textwidth}
 	\hspace*{-1.5cm}
 	\subcaptionbox{CPU Time Comparison.} {
@@ -1461,35 +1401,141 @@ scaled y ticks = false
 	
 	\end{axis} 
 	\end{tikzpicture} }
-\end{minipage}
-\caption{Statistics collected from successful benchmarks.}
+\end{minipage}}
+\caption{Statistics Collected from Successful Benchmarks.}
 \end{figure}
 
 
 \vspace{2cm}
 
-\begin{figure}[H]
+\begin{table}[H]
 \begin{center}
-	\begin{tabu}{ccc}
-		\cmidrule(lr){2-3}
-		Technique & Tests Solved & Solve Time\\
-		\cmidrule{1-3}
-		Nested Interpolants & 165/250 & 3508s \\
-		PDR SMTInterpol& 35/250  & 496s \\
-		PDR Z3 & 62/250& 1322s\\
+	\begin{tabu}{cccc}
+		\toprule
+		 & Nested Interpolants & PDR SMTInterpol & PDR Z3 \\
+		\cmidrule{1-4}
+		Tests Solved & 179/250 & 49/250 & 62/250\\
+		Solve Time &  3543s & 575s & 1332s\\
+		Timeouts & 65 & 90 & 133 \\
+		Exceptions & 6 & 111 & 55 \\
+		\toprule 
 		\bottomrule
+		
+		\multicolumn{4}{c}{\texttt{real-life}} \\
+		\cmidrule{1-4}
+		Tests Solved & 20/31 & 3/31 & 9/31\\
+		Solve Time &  598s & 8s & 76s \\
+		Timeouts & 11 & 10 & 14\\
+		Exceptions & 0 & 18& 8 \\
+		\toprule 
+		\bottomrule
+		
+		\multicolumn{4}{c}{\texttt{20170319-ConjunctivePathPrograms}} \\
+		\cmidrule{1-4}
+		Tests Solved & 29/40 & 6/40 & 16/40\\
+		Solve Time & 531s & 35s & 191s\\
+		Timeouts & 11 & 15 & 20 \\
+		Exceptions & 0 & 19 & 4 \\
+		\bottomrule 
+		\bottomrule
+		
+		\multicolumn{4}{c}{\texttt{20170304-DifficultPathPrograms}} \\
+		\cmidrule{1-4}
+		Tests Solved & 105/134 & 24/134 & 24/134 \\
+		Solve Time & 1435s & 449s & 975s\\
+		Timeouts & 24 & 44 & 74 \\
+		Exceptions & 5 & 66 & 36 \\
+		\toprule 
+		\bottomrule
+		
+		\multicolumn{4}{c}{\texttt{tooDifficultLoopInvariants}} \\
+		\cmidrule{1-4}
+		Tests Solved & 17/37 & 8/37 & 8/37\\
+		Solve Time &  944s & 42s & 57s\\
+		Timeouts & 19 & 21 & 22 \\
+		Exceptions & 1 & 8 & 7 \\
+		\toprule 
+		\bottomrule
+		
+		\multicolumn{4}{c}{\texttt{nonlinear}} \\
+		\cmidrule{1-4}
+		Tests Solved & 8/8 & 8/8 & 5/8 \\
+		Solve Time & 35s  & 41s & 33s \\
+		Timeouts & 0 & 0 & 3 \\
+		Exceptions & 0 & 0 & 0\\
+
 	\end{tabu}
 \end{center}
-\caption{Evaluation Results.}
-\end{figure}
+\caption{Evaluation Results Divided by Category.}
+\end{table}
+
+\vspace*{3cm}
+
+\begin{table}
+
+\begin{center}
+	\begin{tabu}{ccc}
+		\toprule
+		\cmidrule(lr){1-3}
+		& Nested Interpolants & PDR \\
+		\cmidrule{1-3}
+		Exclusively solved & 116 & 13 \\
+		\bottomrule
+	\end{tabu}
+\caption{Number of Programs That Were Solved Only by One Method. We United the Results of Both PDR Variants.}
+\end{center}
+\end{table}
+
+\vspace{2cm}
+
 
 \section{Discussion}
-In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques, there are however some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because Library-PDR does not yet use interpolants, we have trouble solving programs that contain loops, as we have to disprove every single loop iteration, making verification very time consuming. \\
-We can see that PDR was in some occasions faster than Nested Interpolants.
+In Figure 5.1 we can see that the most benchmark results were equally fast for both techniques. There are some programs where PDR was significantly slower than the Nested Interpolants. This stems from loops, because Library-PDR does not yet use interpolants, we have trouble solving programs that contain loops leading so slower performances and timeouts. \\
 Both techniques were more or less on par regarding memory consumption. \par
-In Figure 5.2 we see that PDR generally only solved $\frac{1}{7}$ of the benchmarks using SMTInterpol and $\frac{1}{4}$ using Z3. This is because our benchmarkset contained programs with procedures. A procedure is a call to another function outside of the main program. Our PDR implementation can not yet deal with such programs, and because of that cannot deal with a lot of the benchmarks. \par
-There are 7 benchmarks that only PDR could solve as they timed out with Nested Interpolants, which is promising.
-\pagebreak
+Table 5.1 shows in the first section the overall statistics of each method. Then we see the performance of each category. \\
+We see that PDR with SMTInterpol solved roughly $\frac{1}{5}$ of the benchmarks, and PDR with Z3 roughly $\frac{1}{4}$. The most exceptions of PDR with SMTInterpol were results of there being existential quantors in formulae with which SMTInterpol cannot deal. Most exceptions in PDR with Z3 were unsupported operation exceptions of Z3. \par
+
+Table 5.2 shows the instances that were solved exclusively by one method. We see that PDR, here both SMT-solver benchmarks were united, were able to solve 13 instances. In each of these instances trace abstraction with nested interpolants timed out. 5 of those instances were solved as a result of using Z3 as both other methods using SMTInterpol were returning unknown. \\ The other 8 were: 
+\begin{itemize}
+	\item  \texttt{20170319-ConjunctivePathPrograms/ \\ count\_by\_1\_variant.i\_2.bplTransformedIcfg\_BEv2\_3.bpl} \par
+	Nested Interpolants timed out after 211 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	\item  \texttt{20170319-ConjunctivePathPrograms/ \\ jain\_5.i\_2.bplTransformedIcfg\_BEv2\_4.bpl} \par
+	Nested Interpolants timed out after 130 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	
+	\item \texttt{20170304-DifficultPathPrograms/count\_by\_1.i\_3.bpl}
+	\par
+	Nested Interpolants timed out after 231 \textsc{Automizer} iterations, while PDR proved it in 1.
+	
+	
+	\item \texttt{20170304-DifficultPathPrograms/nested.c\_4.bpl}
+	\par
+	Nested Interpolants timed out after 223 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	
+	\item \texttt{20170304-DifficultPathPrograms/phases1.i\_3.bpl}
+	\par
+	Nested Interpolants timed out after 176 \textsc{Automizer} iterations, while PDR proved it in 1.
+	
+	
+	\item \texttt{tooDifficultLoopInvariant/ \\ DivisibilityInterpolantRequired01-BackwardSuccess.bpl}
+	\par
+	Nested Interpolants timed out after 201 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	
+	\item \texttt{tooDifficultLoopInvariant/LargeConstant-ForwardSuccess.bpl}
+	\par
+	Nested Interpolants timed out after 224 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	
+	\item \texttt{tooDifficultLoopInvariant/codeblockAssertOrder01.bpl}
+	\par
+	Nested Interpolants timed out after 250 \textsc{Automizer} iterations, while PDR proved it in 2.
+	
+	
+	
+\end{itemize}
 
 
 \chapter{Related Work}
@@ -1509,8 +1555,6 @@ F[i] \land T_{pc_i \rightarrow pc_j} \models \neg \varphi'
 If that formula is satisfiable, the proof-obligation is blocked and the algorithm strengthens its trace $F[i]$ with $\neg c$. If it is unsatisfiable a new proof-obligation is generated. \\
 We see this approach is similar to ours, except that it maintains a global trace like the original PDR and that it works on an ART, omitting levels. \par
 
-\textbf{Last Todo:} \\
-Another possible way is proposed by Hoder and Bj{\o}rner~\cite{DBLP:conf/sat/HoderB12} operating on an abstract transition system derived from the program. A non-linear variant of PDR is used, so that counterexamples unfold into trees that can be recursively generalized until either proven or disproven.
 
 
 
@@ -1644,12 +1688,10 @@ A solution to that problem is, instead of using a linear approach, we modify our
 
 
 \chapter{Conclusion}
-The goal of this thesis was to use the successful hardware checking technique Property Directed Reachability on software and to implement a new PDR-based analysis plugin in the software checking framework \textsc{Ultimate}. \par Additionally we have shown how to further improve PDR to make it more efficient. In comparison with another checking technique, Nested Interpolants, we have seen that PDR can be faster and can solve programs that the other technique struggled with. However there is still some work to be done like implementing proper use of interpolants and a way to deal with procedures.
+ \par Additionally we have shown how to further improve PDR to make it more efficient. In comparison with another checking technique, Nested Interpolants, we have seen that PDR can be faster and can solve programs that the other technique struggled with. However there is still some work to be done like implementing proper use of interpolants and a way to deal with procedures.
 
 
-\chapter*{Acknowledgements}
-
-
+\addcontentsline{toc}{chapter}{Bibliography}
 \bibliographystyle{plain}
 \bibliography{bib}
 
