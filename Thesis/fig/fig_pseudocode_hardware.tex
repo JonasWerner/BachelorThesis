@@ -1,0 +1,43 @@
+
+\documentclass[11pt, a4paper, BCOR=10mm, ngerman]{scrbook}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\begin{document}
+\begin{figure}[H]
+	\begin{algorithm}[H] 
+		\begin{algorithmic}[1]
+			\Procedure{PDR-prove}{$I, T, P$}
+			\State check for 0-counter-example
+			\State $trace.push(new\ frame(I))$
+			\Statex
+			\Loop
+			
+			\While {$\exists$ cube c, s.t. $trace.last() \land T \land c'$ is SAT and $c \Rightarrow \bar P$}
+			\State recursively block proof-obligation(c, trace.size() - 1)
+			\State and strengthen the frames of the trace.
+			\If {a proof-obligation(p, 0) is generated}
+	
+			\State{\Return{false}} 
+			\EndIf
+			\EndWhile
+			
+			\Statex 
+			
+			\State $F_{k+1} = new\ frame(P)$
+			\ForAll{clause c $\in$ $trace.last()$}
+			\If{$trace.last() \land T \land \bar c'$ is UNSAT} 
+			\State{$F_{k+1} = F_{k+1} \land c$}
+			\EndIf
+			\EndFor
+			\If {$trace.last() == F_{k+1}$}
+			\State{\Return{true}}
+			\EndIf
+			\State $trace.push(F_{k+1})$
+			
+			\EndLoop
+			\EndProcedure
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
+\end{document}
